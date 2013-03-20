@@ -1,1 +1,1 @@
-nvcc -g -G integ.cu -lm -o test &&./test 0 1
+nvcc -g -G integ.cu -arch sm_20 -lm -o test &&./test 0 1
