@@ -1,0 +1,1 @@
+nvcc -g -G integ.cu -lm -o test &&./test 0 1
