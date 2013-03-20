@@ -17,36 +17,39 @@ __device__ func dF4 = F4;
 __device__ func dF5 = F5;
 __device__ func dF6 = F6;
 
-__global__ void func_kernel(func* F, float * dy, float a, float base, int n, int func_type)
+__global__ void func_kernel(func* f, float * dy, float a, float base, int n, int func_type)
 {
 	int id = blockIdx.x * blockDim.x + threadIdx.x;
 	// ensure we are within bounds
 	float x[1] = {a + base * ((float)0.5 + (float)id)};
 	if (id<n)
-		dy[id] = base * F[func_type](x, NULL);
+		dy[id] = base * f[func_type](x, NULL);
 	__syncthreads();
 }
-
+void cudasafe( cudaError_t error, char* message)
+{
+   if(error!=cudaSuccess) { fprintf(stderr,"ERROR: %s : %i\n",message,error); exit(-1); }
+}
 
 int main( int argc, char* argv[])
 {
 	// allocatiing function pointers
-	int func_count = 7;
+	int func_count = 1;
 	func * d_f;
 	func * h_f;	
 	h_f = (func*)malloc(func_count*sizeof(func));
-	cudaMalloc((void**)&d_f, func_count*sizeof(func));
-	cudaMemcpyFromSymbol( &h_f[0], dF0, sizeof(func));	
-	cudaMemcpyFromSymbol( &h_f[1], dF1, sizeof(func));	
-	cudaMemcpyFromSymbol( &h_f[2], dF2, sizeof(func));	
-	cudaMemcpyFromSymbol( &h_f[3], dF3, sizeof(func));	
-	cudaMemcpyFromSymbol( &h_f[4], dF4, sizeof(func));	
-	cudaMemcpyFromSymbol( &h_f[5], dF5, sizeof(func));	
-	cudaMemcpyFromSymbol( &h_f[6], dF6, sizeof(func));	
+	cudasafe(cudaMalloc((void**)&d_f, func_count*sizeof(func)), "cudaMalloc");
+	cudasafe(cudaMemcpyFromSymbol( &h_f[0], dF0, sizeof(func)), "cudaMemcpyFromSymbol");	
+//	cudaMemcpyFromSymbol( &h_f[1], dF1, sizeof(func));	
+//	cudaMemcpyFromSymbol( &h_f[2], dF2, sizeof(func));	
+//	cudaMemcpyFromSymbol( &h_f[3], dF3, sizeof(func));	
+//	cudaMemcpyFromSymbol( &h_f[4], dF4, sizeof(func));	
+//	cudaMemcpyFromSymbol( &h_f[5], dF5, sizeof(func));	
+//	cudaMemcpyFromSymbol( &h_f[6], dF6, sizeof(func));	
 	//	   dst				
 	//	    |	src
 	//	    |	 |	size
-	cudaMemcpy(d_f, h_f, func_count*sizeof(func), cudaMemcpyHostToDevice);
+	cudasafe(cudaMemcpy(d_f, h_f, func_count*sizeof(func), cudaMemcpyHostToDevice), "cudaMemcpy");
 
 	// vector size
 	int n = 4096; 
@@ -58,8 +61,9 @@ int main( int argc, char* argv[])
 	float *y = (float*)malloc(bytes);
 	
 	float a, b;
-	sscanf(argv[1], "%f", &a); 
-	sscanf(argv[2], "%f", &b);
+	int functionCode = atoi(argv[1]);
+	sscanf(argv[2], "%f", &a); 
+	sscanf(argv[3], "%f", &b);
  
 	float base = (b - a) / (float)n;
 	printf("%f\n", base);
@@ -89,7 +93,9 @@ int main( int argc, char* argv[])
 	printf("final result: %f\n", sum);
 
 	cudaFree(dy);
-	
+	cudaFree(d_f);
+
+	free(h_f);
 	free(y);
 	return 0;
 }
