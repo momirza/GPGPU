@@ -1,14 +1,14 @@
 #ifndef cw2_functions_h
 #define cw2_functions_h
 
-#include <math.h>
+#include "math.h"
 
 /* Description = exp(x)
 	Code = 0     (this is the code that will be passed to Integrate to identify this function)
 	k=1 (uni-variate)
 	params = []  (no parameters)
 */
-float F0(const float *x, const float *params)
+__device__ float F0(const float *x, const float *params)
 { return exp(x[0]); }
 
 /* Name = sin(o1+x*y)*exp(o2+x)

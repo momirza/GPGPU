@@ -1,18 +1,19 @@
 #include <stdio.h>
 #include <stdlib.h>
-#include "math.h"
+#include "functions.h"
 //CUDA kernel
 
-__device__ float F1(float x){
-	return sin(x); 
-}
+//__device__ float F1(float x){
+//	return sin(x); 
+//}
 
 __global__ void func_kernel(float * dy, float a, float base, int n)
 {
 	int id = blockIdx.x * blockDim.x + threadIdx.x;
 	// ensure we are within bounds
+	float x[1] = {a + base * ((float)0.5 + (float)id)};
 	if (id<n)
-		dy[id] = base * F1(a + base * ((float)0.5 + (float)id));
+		dy[id] = base * F0(x, NULL);
 	__syncthreads();
 }
 
