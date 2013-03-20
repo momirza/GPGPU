@@ -1,10 +1,10 @@
 	.version 1.4
 	.target sm_10, map_f64_to_f32
-	// compiled with D:\bld\rel\gpgpu\toolkit\r5.0\samples\build\cuda\5.0.35-13978363_x64\\bin/../open64/lib//be.exe
-	// nvopencc 4.1 built on 2012-09-25
+	// compiled with /usr/local/cuda-5.0/open64/lib//be
+	// nvopencc 4.1 built on 2012-09-21
 
 	//-----------------------------------------------------------
-	// Compiling C:/DOCUME~1/BUILDM~1.COM/LOCALS~1/Temp/tmpxft_00000efc_00000000-11_matrixMul_kernel.cpp3.i (C:/DOCUME~1/BUILDM~1.COM/LOCALS~1/Temp/ccBI#.a00128)
+	// Compiling /tmp/tmpxft_00000a38_00000000-9_matrixMul_kernel.cpp3.i (/tmp/ccBI#.RyR47b)
 	//-----------------------------------------------------------
 
 	//-----------------------------------------------------------
@@ -16,41 +16,40 @@
 	//  -m2	(Report advisories)
 	//-----------------------------------------------------------
 
-	.file	1	"C:/DOCUME~1/BUILDM~1.COM/LOCALS~1/Temp/tmpxft_00000efc_00000000-10_matrixMul_kernel.cudafe2.gpu"
-	.file	2	"C:/Program Files (x86)/Microsoft Visual Studio 9.0/VC/bin/../../VC/\INCLUDE\crtdefs.h"
-	.file	3	"D:/bld/rel/gpgpu/toolkit/r5.0/samples/build/cuda/5.0.35-13978363_x64//include\crt/device_runtime.h"
-	.file	4	"D:/bld/rel/gpgpu/toolkit/r5.0/samples/build/cuda/5.0.35-13978363_x64//include\host_defines.h"
-	.file	5	"D:/bld/rel/gpgpu/toolkit/r5.0/samples/build/cuda/5.0.35-13978363_x64//include\builtin_types.h"
-	.file	6	"d:\bld\rel\gpgpu\toolkit\r5.0\samples\build\cuda\5.0.35-13978363_x64\include\device_types.h"
-	.file	7	"d:\bld\rel\gpgpu\toolkit\r5.0\samples\build\cuda\5.0.35-13978363_x64\include\host_defines.h"
-	.file	8	"d:\bld\rel\gpgpu\toolkit\r5.0\samples\build\cuda\5.0.35-13978363_x64\include\driver_types.h"
-	.file	9	"d:\bld\rel\gpgpu\toolkit\r5.0\samples\build\cuda\5.0.35-13978363_x64\include\surface_types.h"
-	.file	10	"d:\bld\rel\gpgpu\toolkit\r5.0\samples\build\cuda\5.0.35-13978363_x64\include\texture_types.h"
-	.file	11	"d:\bld\rel\gpgpu\toolkit\r5.0\samples\build\cuda\5.0.35-13978363_x64\include\vector_types.h"
-	.file	12	"d:\bld\rel\gpgpu\toolkit\r5.0\samples\build\cuda\5.0.35-13978363_x64\include\builtin_types.h"
-	.file	13	"D:/bld/rel/gpgpu/toolkit/r5.0/samples/build/cuda/5.0.35-13978363_x64//include\device_launch_parameters.h"
-	.file	14	"d:\bld\rel\gpgpu\toolkit\r5.0\samples\build\cuda\5.0.35-13978363_x64\include\crt\storage_class.h"
-	.file	15	"d:/bld/rel/gpgpu/toolkit/r5.0/samples/0_Simple/matrixMulDrv/matrixMul_kernel.cu"
-	.file	16	"D:/bld/rel/gpgpu/toolkit/r5.0/samples/build/cuda/5.0.35-13978363_x64//include\common_functions.h"
-	.file	17	"d:\bld\rel\gpgpu\toolkit\r5.0\samples\build\cuda\5.0.35-13978363_x64\include\math_functions.h"
-	.file	18	"d:\bld\rel\gpgpu\toolkit\r5.0\samples\build\cuda\5.0.35-13978363_x64\include\math_constants.h"
-	.file	19	"d:\bld\rel\gpgpu\toolkit\r5.0\samples\build\cuda\5.0.35-13978363_x64\include\device_functions.h"
-	.file	20	"d:\bld\rel\gpgpu\toolkit\r5.0\samples\build\cuda\5.0.35-13978363_x64\include\sm_11_atomic_functions.h"
-	.file	21	"d:\bld\rel\gpgpu\toolkit\r5.0\samples\build\cuda\5.0.35-13978363_x64\include\sm_12_atomic_functions.h"
-	.file	22	"d:\bld\rel\gpgpu\toolkit\r5.0\samples\build\cuda\5.0.35-13978363_x64\include\sm_13_double_functions.h"
-	.file	23	"d:\bld\rel\gpgpu\toolkit\r5.0\samples\build\cuda\5.0.35-13978363_x64\include\sm_20_atomic_functions.h"
-	.file	24	"d:\bld\rel\gpgpu\toolkit\r5.0\samples\build\cuda\5.0.35-13978363_x64\include\sm_35_atomic_functions.h"
-	.file	25	"d:\bld\rel\gpgpu\toolkit\r5.0\samples\build\cuda\5.0.35-13978363_x64\include\sm_20_intrinsics.h"
-	.file	26	"d:\bld\rel\gpgpu\toolkit\r5.0\samples\build\cuda\5.0.35-13978363_x64\include\sm_30_intrinsics.h"
-	.file	27	"d:\bld\rel\gpgpu\toolkit\r5.0\samples\build\cuda\5.0.35-13978363_x64\include\sm_35_intrinsics.h"
-	.file	28	"d:\bld\rel\gpgpu\toolkit\r5.0\samples\build\cuda\5.0.35-13978363_x64\include\surface_functions.h"
-	.file	29	"d:\bld\rel\gpgpu\toolkit\r5.0\samples\build\cuda\5.0.35-13978363_x64\include\texture_fetch_functions.h"
-	.file	30	"d:\bld\rel\gpgpu\toolkit\r5.0\samples\build\cuda\5.0.35-13978363_x64\include\texture_indirect_functions.h"
-	.file	31	"d:\bld\rel\gpgpu\toolkit\r5.0\samples\build\cuda\5.0.35-13978363_x64\include\surface_indirect_functions.h"
-	.file	32	"d:\bld\rel\gpgpu\toolkit\r5.0\samples\build\cuda\5.0.35-13978363_x64\include\math_functions_dbl_ptx1.h"
+	.file	1	"<command-line>"
+	.file	2	"/tmp/tmpxft_00000a38_00000000-8_matrixMul_kernel.cudafe2.gpu"
+	.file	3	"/usr/lib/gcc/x86_64-linux-gnu/4.5.4/include/stddef.h"
+	.file	4	"/usr/local/cuda/include/crt/device_runtime.h"
+	.file	5	"/usr/local/cuda/include/host_defines.h"
+	.file	6	"/usr/local/cuda/include/builtin_types.h"
+	.file	7	"/usr/local/cuda/include/device_types.h"
+	.file	8	"/usr/local/cuda/include/driver_types.h"
+	.file	9	"/usr/local/cuda/include/surface_types.h"
+	.file	10	"/usr/local/cuda/include/texture_types.h"
+	.file	11	"/usr/local/cuda/include/vector_types.h"
+	.file	12	"/usr/local/cuda/include/device_launch_parameters.h"
+	.file	13	"/usr/local/cuda/include/crt/storage_class.h"
+	.file	14	"matrixMul_kernel.cu"
+	.file	15	"/usr/local/cuda/include/common_functions.h"
+	.file	16	"/usr/local/cuda/include/math_functions.h"
+	.file	17	"/usr/local/cuda/include/math_constants.h"
+	.file	18	"/usr/local/cuda/include/device_functions.h"
+	.file	19	"/usr/local/cuda/include/sm_11_atomic_functions.h"
+	.file	20	"/usr/local/cuda/include/sm_12_atomic_functions.h"
+	.file	21	"/usr/local/cuda/include/sm_13_double_functions.h"
+	.file	22	"/usr/local/cuda/include/sm_20_atomic_functions.h"
+	.file	23	"/usr/local/cuda/include/sm_35_atomic_functions.h"
+	.file	24	"/usr/local/cuda/include/sm_20_intrinsics.h"
+	.file	25	"/usr/local/cuda/include/sm_30_intrinsics.h"
+	.file	26	"/usr/local/cuda/include/sm_35_intrinsics.h"
+	.file	27	"/usr/local/cuda/include/surface_functions.h"
+	.file	28	"/usr/local/cuda/include/texture_fetch_functions.h"
+	.file	29	"/usr/local/cuda/include/texture_indirect_functions.h"
+	.file	30	"/usr/local/cuda/include/surface_indirect_functions.h"
+	.file	31	"/usr/local/cuda/include/math_functions_dbl_ptx1.h"
 
-	.shared .align 4 .b8 __cuda_local_var_137501_38_non_const_As__6[1024];
-	.shared .align 4 .b8 __cuda_local_var_137505_38_non_const_Bs__7[1024];
+	.shared .align 4 .b8 __cuda_local_var_15667_39_non_const_As__6[1024];
+	.shared .align 4 .b8 __cuda_local_var_15671_39_non_const_Bs__7[1024];
 
 	.entry matrixMul_bs16_32bit (
 		.param .u64 __cudaparm_matrixMul_bs16_32bit_C,
@@ -63,9 +62,9 @@
 	.reg .u64 %rd<29>;
 	.reg .f32 %f<52>;
 	.reg .pred %p<4>;
-	.loc	15	109	0
+	.loc	14	109	0
 $LDWbegin_matrixMul_bs16_32bit:
-	.loc	15	66	0
+	.loc	14	66	0
 	cvt.s32.u16 	%r1, %ctaid.x;
 	mul24.lo.s32 	%r2, %r1, 16;
 	cvt.s32.u16 	%r3, %ctaid.y;
@@ -79,8 +78,8 @@ $LDWbegin_matrixMul_bs16_32bit:
 	ld.param.s32 	%r11, [__cudaparm_matrixMul_bs16_32bit_wB];
 	setp.lt.s32 	%p1, %r8, %r6;
 	@%p1 bra 	$Lt_0_3330;
-	mov.u64 	%rd1, __cuda_local_var_137501_38_non_const_As__6;
-	mov.u64 	%rd2, __cuda_local_var_137505_38_non_const_Bs__7;
+	mov.u64 	%rd1, __cuda_local_var_15667_39_non_const_As__6;
+	mov.u64 	%rd2, __cuda_local_var_15671_39_non_const_Bs__7;
 	ld.param.s32 	%r4, [__cudaparm_matrixMul_bs16_32bit_wA];
 	add.s32 	%r12, %r4, 15;
 	shr.s32 	%r13, %r12, 31;
@@ -123,15 +122,15 @@ $LDWbegin_matrixMul_bs16_32bit:
 	mov.s32 	%r27, %r17;
 $Lt_0_2818:
  //<loop> Loop body line 66, nesting depth: 1, estimated iterations: unknown
-	.loc	15	82	0
+	.loc	14	82	0
 	ld.global.f32 	%f2, [%rd23+0];
 	st.shared.f32 	[%rd14+0], %f2;
-	.loc	15	83	0
+	.loc	14	83	0
 	ld.global.f32 	%f3, [%rd19+0];
 	st.shared.f32 	[%rd15+0], %f3;
-	.loc	15	86	0
+	.loc	14	86	0
 	bar.sync 	0;
-	.loc	15	94	0
+	.loc	14	94	0
 	ld.shared.f32 	%f4, [%rd8+0];
 	ld.shared.f32 	%f5, [%rd6+0];
 	mad.f32 	%f6, %f4, %f5, %f1;
@@ -180,9 +179,9 @@ $Lt_0_2818:
 	ld.shared.f32 	%f49, [%rd8+60];
 	ld.shared.f32 	%f50, [%rd6+960];
 	mad.f32 	%f1, %f49, %f50, %f48;
-	.loc	15	99	0
+	.loc	14	99	0
 	bar.sync 	0;
-	.loc	15	66	0
+	.loc	14	66	0
 	add.u64 	%rd19, %rd13, %rd19;
 	add.s32 	%r21, %r21, 16;
 	add.u64 	%rd23, %rd23, 64;
@@ -194,7 +193,7 @@ $Lt_0_3330:
 	mul.lo.s32 	%r18, %r10, %r11;
 	mov.f32 	%f1, 0f00000000;     	// 0
 $Lt_0_2306:
-	.loc	15	105	0
+	.loc	14	105	0
 	ld.param.u64 	%rd24, [__cudaparm_matrixMul_bs16_32bit_C];
 	mul.lo.s32 	%r28, %r11, %r3;
 	add.s32 	%r29, %r1, %r28;
@@ -205,12 +204,12 @@ $Lt_0_2306:
 	mul.wide.s32 	%rd26, %r32, 4;
 	add.u64 	%rd27, %rd24, %rd26;
 	st.global.f32 	[%rd27+0], %f1;
-	.loc	15	112	0
+	.loc	14	112	0
 	exit;
 $LDWend_matrixMul_bs16_32bit:
 	} // matrixMul_bs16_32bit
-	.shared .align 4 .b8 __cuda_local_var_137501_38_non_const_As__4[1024];
-	.shared .align 4 .b8 __cuda_local_var_137505_38_non_const_Bs__5[1024];
+	.shared .align 4 .b8 __cuda_local_var_15667_39_non_const_As__4[1024];
+	.shared .align 4 .b8 __cuda_local_var_15671_39_non_const_Bs__5[1024];
 
 	.entry matrixMul_bs16_64bit (
 		.param .u64 __cudaparm_matrixMul_bs16_64bit_C,
@@ -222,9 +221,9 @@ $LDWend_matrixMul_bs16_32bit:
 	.reg .u64 %rd<53>;
 	.reg .f32 %f<52>;
 	.reg .pred %p<4>;
-	.loc	15	113	0
+	.loc	14	113	0
 $LDWbegin_matrixMul_bs16_64bit:
-	.loc	15	66	0
+	.loc	14	66	0
 	cvt.u64.u16 	%rd1, %ctaid.x;
 	mul.lo.u64 	%rd2, %rd1, 16;
 	cvt.u64.u16 	%rd3, %ctaid.y;
@@ -239,8 +238,8 @@ $LDWbegin_matrixMul_bs16_64bit:
 	ld.param.u64 	%rd12, [__cudaparm_matrixMul_bs16_64bit_wB];
 	setp.lt.u64 	%p1, %rd9, %rd6;
 	@%p1 bra 	$Lt_1_3330;
-	mov.u64 	%rd13, __cuda_local_var_137501_38_non_const_As__4;
-	mov.u64 	%rd14, __cuda_local_var_137505_38_non_const_Bs__5;
+	mov.u64 	%rd13, __cuda_local_var_15667_39_non_const_As__4;
+	mov.u64 	%rd14, __cuda_local_var_15671_39_non_const_Bs__5;
 	ld.param.u64 	%rd4, [__cudaparm_matrixMul_bs16_64bit_wA];
 	add.u64 	%rd15, %rd4, 15;
 	shr.s64 	%rd16, %rd15, 63;
@@ -275,15 +274,15 @@ $LDWbegin_matrixMul_bs16_64bit:
 	mov.s64 	%rd43, %rd20;
 $Lt_1_2818:
  //<loop> Loop body line 66, nesting depth: 1, estimated iterations: unknown
-	.loc	15	82	0
+	.loc	14	82	0
 	ld.global.f32 	%f2, [%rd42+0];
 	st.shared.f32 	[%rd30+0], %f2;
-	.loc	15	83	0
+	.loc	14	83	0
 	ld.global.f32 	%f3, [%rd36+0];
 	st.shared.f32 	[%rd31+0], %f3;
-	.loc	15	86	0
+	.loc	14	86	0
 	bar.sync 	0;
-	.loc	15	94	0
+	.loc	14	94	0
 	ld.shared.f32 	%f4, [%rd23+0];
 	ld.shared.f32 	%f5, [%rd25+0];
 	mad.f32 	%f6, %f4, %f5, %f1;
@@ -332,9 +331,9 @@ $Lt_1_2818:
 	ld.shared.f32 	%f49, [%rd23+60];
 	ld.shared.f32 	%f50, [%rd25+960];
 	mad.f32 	%f1, %f49, %f50, %f48;
-	.loc	15	99	0
+	.loc	14	99	0
 	bar.sync 	0;
-	.loc	15	66	0
+	.loc	14	66	0
 	add.u64 	%rd36, %rd29, %rd36;
 	add.u64 	%rd7, %rd7, 16;
 	add.u64 	%rd42, %rd42, 64;
@@ -346,7 +345,7 @@ $Lt_1_3330:
 	mul.lo.u64 	%rd21, %rd11, %rd12;
 	mov.f32 	%f1, 0f00000000;     	// 0
 $Lt_1_2306:
-	.loc	15	105	0
+	.loc	14	105	0
 	ld.param.u64 	%rd44, [__cudaparm_matrixMul_bs16_64bit_C];
 	mul.lo.u64 	%rd45, %rd12, %rd3;
 	add.u64 	%rd46, %rd1, %rd45;
@@ -356,12 +355,12 @@ $Lt_1_2306:
 	mul.lo.u64 	%rd50, %rd49, 4;
 	add.u64 	%rd51, %rd44, %rd50;
 	st.global.f32 	[%rd51+0], %f1;
-	.loc	15	116	0
+	.loc	14	116	0
 	exit;
 $LDWend_matrixMul_bs16_64bit:
 	} // matrixMul_bs16_64bit
-	.shared .align 4 .b8 __cuda_local_var_137501_38_non_const_As__2[4096];
-	.shared .align 4 .b8 __cuda_local_var_137505_38_non_const_Bs__3[4096];
+	.shared .align 4 .b8 __cuda_local_var_15667_39_non_const_As__2[4096];
+	.shared .align 4 .b8 __cuda_local_var_15671_39_non_const_Bs__3[4096];
 
 	.entry matrixMul_bs32_32bit (
 		.param .u64 __cudaparm_matrixMul_bs32_32bit_C,
@@ -374,9 +373,9 @@ $LDWend_matrixMul_bs16_64bit:
 	.reg .u64 %rd<29>;
 	.reg .f32 %f<100>;
 	.reg .pred %p<4>;
-	.loc	15	117	0
+	.loc	14	117	0
 $LDWbegin_matrixMul_bs32_32bit:
-	.loc	15	66	0
+	.loc	14	66	0
 	cvt.s32.u16 	%r1, %ctaid.x;
 	mul24.lo.s32 	%r2, %r1, 32;
 	cvt.s32.u16 	%r3, %ctaid.y;
@@ -390,8 +389,8 @@ $LDWbegin_matrixMul_bs32_32bit:
 	ld.param.s32 	%r11, [__cudaparm_matrixMul_bs32_32bit_wB];
 	setp.lt.s32 	%p1, %r8, %r6;
 	@%p1 bra 	$Lt_2_3330;
-	mov.u64 	%rd1, __cuda_local_var_137501_38_non_const_As__2;
-	mov.u64 	%rd2, __cuda_local_var_137505_38_non_const_Bs__3;
+	mov.u64 	%rd1, __cuda_local_var_15667_39_non_const_As__2;
+	mov.u64 	%rd2, __cuda_local_var_15671_39_non_const_Bs__3;
 	ld.param.s32 	%r4, [__cudaparm_matrixMul_bs32_32bit_wA];
 	add.s32 	%r12, %r4, 31;
 	shr.s32 	%r13, %r12, 31;
@@ -434,15 +433,15 @@ $LDWbegin_matrixMul_bs32_32bit:
 	mov.s32 	%r27, %r17;
 $Lt_2_2818:
  //<loop> Loop body line 66, nesting depth: 1, estimated iterations: unknown
-	.loc	15	82	0
+	.loc	14	82	0
 	ld.global.f32 	%f2, [%rd23+0];
 	st.shared.f32 	[%rd14+0], %f2;
-	.loc	15	83	0
+	.loc	14	83	0
 	ld.global.f32 	%f3, [%rd19+0];
 	st.shared.f32 	[%rd15+0], %f3;
-	.loc	15	86	0
+	.loc	14	86	0
 	bar.sync 	0;
-	.loc	15	94	0
+	.loc	14	94	0
 	ld.shared.f32 	%f4, [%rd8+0];
 	ld.shared.f32 	%f5, [%rd6+0];
 	mad.f32 	%f6, %f4, %f5, %f1;
@@ -539,9 +538,9 @@ $Lt_2_2818:
 	ld.shared.f32 	%f97, [%rd8+124];
 	ld.shared.f32 	%f98, [%rd6+3968];
 	mad.f32 	%f1, %f97, %f98, %f96;
-	.loc	15	99	0
+	.loc	14	99	0
 	bar.sync 	0;
-	.loc	15	66	0
+	.loc	14	66	0
 	add.u64 	%rd19, %rd13, %rd19;
 	add.s32 	%r21, %r21, 32;
 	add.u64 	%rd23, %rd23, 128;
@@ -553,7 +552,7 @@ $Lt_2_3330:
 	mul.lo.s32 	%r18, %r10, %r11;
 	mov.f32 	%f1, 0f00000000;     	// 0
 $Lt_2_2306:
-	.loc	15	105	0
+	.loc	14	105	0
 	ld.param.u64 	%rd24, [__cudaparm_matrixMul_bs32_32bit_C];
 	mul.lo.s32 	%r28, %r11, %r3;
 	add.s32 	%r29, %r1, %r28;
@@ -564,12 +563,12 @@ $Lt_2_2306:
 	mul.wide.s32 	%rd26, %r32, 4;
 	add.u64 	%rd27, %rd24, %rd26;
 	st.global.f32 	[%rd27+0], %f1;
-	.loc	15	120	0
+	.loc	14	120	0
 	exit;
 $LDWend_matrixMul_bs32_32bit:
 	} // matrixMul_bs32_32bit
-	.shared .align 4 .b8 __cuda_local_var_137501_38_non_const_As__0[4096];
-	.shared .align 4 .b8 __cuda_local_var_137505_38_non_const_Bs__1[4096];
+	.shared .align 4 .b8 __cuda_local_var_15667_39_non_const_As__0[4096];
+	.shared .align 4 .b8 __cuda_local_var_15671_39_non_const_Bs__1[4096];
 
 	.entry matrixMul_bs32_64bit (
 		.param .u64 __cudaparm_matrixMul_bs32_64bit_C,
@@ -581,9 +580,9 @@ $LDWend_matrixMul_bs32_32bit:
 	.reg .u64 %rd<53>;
 	.reg .f32 %f<100>;
 	.reg .pred %p<4>;
-	.loc	15	121	0
+	.loc	14	121	0
 $LDWbegin_matrixMul_bs32_64bit:
-	.loc	15	66	0
+	.loc	14	66	0
 	cvt.u64.u16 	%rd1, %ctaid.x;
 	mul.lo.u64 	%rd2, %rd1, 32;
 	cvt.u64.u16 	%rd3, %ctaid.y;
@@ -598,8 +597,8 @@ $LDWbegin_matrixMul_bs32_64bit:
 	ld.param.u64 	%rd12, [__cudaparm_matrixMul_bs32_64bit_wB];
 	setp.lt.u64 	%p1, %rd9, %rd6;
 	@%p1 bra 	$Lt_3_3330;
-	mov.u64 	%rd13, __cuda_local_var_137501_38_non_const_As__0;
-	mov.u64 	%rd14, __cuda_local_var_137505_38_non_const_Bs__1;
+	mov.u64 	%rd13, __cuda_local_var_15667_39_non_const_As__0;
+	mov.u64 	%rd14, __cuda_local_var_15671_39_non_const_Bs__1;
 	ld.param.u64 	%rd4, [__cudaparm_matrixMul_bs32_64bit_wA];
 	add.u64 	%rd15, %rd4, 31;
 	shr.s64 	%rd16, %rd15, 63;
@@ -634,15 +633,15 @@ $LDWbegin_matrixMul_bs32_64bit:
 	mov.s64 	%rd43, %rd20;
 $Lt_3_2818:
  //<loop> Loop body line 66, nesting depth: 1, estimated iterations: unknown
-	.loc	15	82	0
+	.loc	14	82	0
 	ld.global.f32 	%f2, [%rd42+0];
 	st.shared.f32 	[%rd30+0], %f2;
-	.loc	15	83	0
+	.loc	14	83	0
 	ld.global.f32 	%f3, [%rd36+0];
 	st.shared.f32 	[%rd31+0], %f3;
-	.loc	15	86	0
+	.loc	14	86	0
 	bar.sync 	0;
-	.loc	15	94	0
+	.loc	14	94	0
 	ld.shared.f32 	%f4, [%rd23+0];
 	ld.shared.f32 	%f5, [%rd25+0];
 	mad.f32 	%f6, %f4, %f5, %f1;
@@ -739,9 +738,9 @@ $Lt_3_2818:
 	ld.shared.f32 	%f97, [%rd23+124];
 	ld.shared.f32 	%f98, [%rd25+3968];
 	mad.f32 	%f1, %f97, %f98, %f96;
-	.loc	15	99	0
+	.loc	14	99	0
 	bar.sync 	0;
-	.loc	15	66	0
+	.loc	14	66	0
 	add.u64 	%rd36, %rd29, %rd36;
 	add.u64 	%rd7, %rd7, 32;
 	add.u64 	%rd42, %rd42, 128;
@@ -753,7 +752,7 @@ $Lt_3_3330:
 	mul.lo.u64 	%rd21, %rd11, %rd12;
 	mov.f32 	%f1, 0f00000000;     	// 0
 $Lt_3_2306:
-	.loc	15	105	0
+	.loc	14	105	0
 	ld.param.u64 	%rd44, [__cudaparm_matrixMul_bs32_64bit_C];
 	mul.lo.u64 	%rd45, %rd12, %rd3;
 	add.u64 	%rd46, %rd1, %rd45;
@@ -763,7 +762,7 @@ $Lt_3_2306:
 	mul.lo.u64 	%rd50, %rd49, 4;
 	add.u64 	%rd51, %rd44, %rd50;
 	st.global.f32 	[%rd51+0], %f1;
-	.loc	15	124	0
+	.loc	14	124	0
 	exit;
 $LDWend_matrixMul_bs32_64bit:
 	} // matrixMul_bs32_64bit
