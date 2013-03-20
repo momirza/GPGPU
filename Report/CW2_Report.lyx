@@ -79,12 +79,116 @@ The Math
 Integration approach
 \end_layout
 
+\begin_layout Itemize
+Rectangles
+\end_layout
+
 \begin_layout Subsection*
 Error estimation approach
 \end_layout
 
+\begin_layout Itemize
+Adaptive Quadrature.
+\end_layout
+
 \begin_layout Section*
 Pseudo-code
+\end_layout
+
+\begin_layout Standard
+\begin_inset Float algorithm
+wide false
+sideways false
+status open
+
+\begin_layout Plain Layout
+\begin_inset listings
+inline false
+status open
+
+\begin_layout Plain Layout
+
+FUNCTION integrate(grain_size):
+\end_layout
+
+\begin_layout Plain Layout
+
+	Initialize_Kernel()
+\end_layout
+
+\begin_layout Plain Layout
+
+	Copy from global memery to local memory
+\end_layout
+
+\begin_layout Plain Layout
+
+	for loop for each dimension
+\end_layout
+
+\begin_layout Plain Layout
+
+	store to y[i] which corresponds to each thread index
+\end_layout
+
+\begin_layout Plain Layout
+
+	Decommission Kernel()
+\end_layout
+
+\begin_layout Plain Layout
+
+\end_layout
+
+\begin_layout Plain Layout
+
+	__HOST_CODE__
+\end_layout
+
+\begin_layout Plain Layout
+
+	MEMCPYFROMDEVICE(host_y, y)
+\end_layout
+
+\begin_layout Plain Layout
+
+	area= sum_of_all_elements(y)
+\end_layout
+
+\begin_layout Plain Layout
+
+	if not |actual_area - area| < tau:
+\end_layout
+
+\begin_layout Plain Layout
+
+		integrate(grain_size/2)
+\end_layout
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Plain Layout
+\begin_inset Caption
+
+\begin_layout Plain Layout
+Kernel Psuedo-code
+\end_layout
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Plain Layout
+
+\end_layout
+
+\end_inset
+
+
 \end_layout
 
 \begin_layout Subsection*
@@ -95,12 +199,20 @@ CPU
 CPU Optimisations
 \end_layout
 
+\begin_layout Itemize
+???
+\end_layout
+
 \begin_layout Subsection*
 GPU
 \end_layout
 
 \begin_layout Subsubsection*
 GPU Optimisations
+\end_layout
+
+\begin_layout Itemize
+Use shared memory instead of global memory when iterating over parameters.
 \end_layout
 
 \begin_layout Section*
@@ -113,6 +225,157 @@ Trade-offs between execution time and error
 
 \begin_layout Subsection*
 Comparisons with Sequential
+\end_layout
+
+\begin_layout Standard
+\begin_inset ERT
+status open
+
+\begin_layout Plain Layout
+
+
+\backslash
+newpage
+\end_layout
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Section*
+Appendix
+\end_layout
+
+\begin_layout Standard
+Device 0: "Tesla M2050"
+\end_layout
+
+\begin_layout Standard
+CUDA Driver Version / Runtime Version 5.0 / 5.0
+\end_layout
+
+\begin_layout Standard
+CUDA Capability Major/Minor version number: 2.0
+\end_layout
+
+\begin_layout Standard
+Total amount of global memory: 3072 MBytes (3220897792 bytes)
+\end_layout
+
+\begin_layout Standard
+(14) Multiprocessors x ( 32) CUDA Cores/MP: 448 CUDA Cores
+\end_layout
+
+\begin_layout Standard
+GPU Clock rate: 1147 MHz (1.15 GHz)
+\end_layout
+
+\begin_layout Standard
+Memory Clock rate: 1546 Mhz
+\end_layout
+
+\begin_layout Standard
+Memory Bus Width: 384-bit
+\end_layout
+
+\begin_layout Standard
+L2 Cache Size: 786432 bytes
+\end_layout
+
+\begin_layout Standard
+Max Texture Dimension Size (x,y,z) 1D=(65536), 2D=(65536,65535), 3D=(2048,2048,2
+048)
+\end_layout
+
+\begin_layout Standard
+Max Layered Texture Size (dim) x layers 1D=(16384) x 2048, 2D=(16384,16384)
+ x 2048
+\end_layout
+
+\begin_layout Standard
+Total amount of constant memory: 65536 bytes
+\end_layout
+
+\begin_layout Standard
+Total amount of shared memory per block: 49152 bytes
+\end_layout
+
+\begin_layout Standard
+Total number of registers available per block: 32768
+\end_layout
+
+\begin_layout Standard
+Warp size: 32
+\end_layout
+
+\begin_layout Standard
+Maximum number of threads per multiprocessor: 1536
+\end_layout
+
+\begin_layout Standard
+Maximum number of threads per block: 1024
+\end_layout
+
+\begin_layout Standard
+Maximum sizes of each dimension of a block: 1024 x 1024 x 64
+\end_layout
+
+\begin_layout Standard
+Maximum sizes of each dimension of a grid: 65535 x 65535 x 65535
+\end_layout
+
+\begin_layout Standard
+Maximum memory pitch: 2147483647 bytes
+\end_layout
+
+\begin_layout Standard
+Texture alignment: 512 bytes
+\end_layout
+
+\begin_layout Standard
+Concurrent copy and kernel execution: Yes with 2 copy engine(s)
+\end_layout
+
+\begin_layout Standard
+Run time limit on kernels: No
+\end_layout
+
+\begin_layout Standard
+Integrated GPU sharing Host Memory: No
+\end_layout
+
+\begin_layout Standard
+Support host page-locked memory mapping: Yes
+\end_layout
+
+\begin_layout Standard
+Alignment requirement for Surfaces: Yes
+\end_layout
+
+\begin_layout Standard
+Device has ECC support: Disabled
+\end_layout
+
+\begin_layout Standard
+Device supports Unified Addressing (UVA): Yes
+\end_layout
+
+\begin_layout Standard
+Device PCI Bus ID / PCI location ID: 0 / 3
+\end_layout
+
+\begin_layout Standard
+Compute Mode:
+\end_layout
+
+\begin_layout Standard
+< Default (multiple host threads can use ::cudaSetDevice() with device simultane
+ously) >
+\end_layout
+
+\begin_layout Standard
+
 \end_layout
 
 \end_body

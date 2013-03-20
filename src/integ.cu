@@ -8,7 +8,7 @@
 //}
 
 
-__global__ void func_kernel(func* f, float * dy, float a, float base, int n, int func_type)
+__global__ void func_kernel(func* f, float * dy, float* a, float* base, int n, int func_type)
 {
 	int idx = blockIdx.x * blockDim.x + threadIdx.x;
 	int idy = blockIdx.y * blockDim.y + threadIdx.y;
@@ -17,9 +17,9 @@ __global__ void func_kernel(func* f, float * dy, float a, float base, int n, int
 	float params[2]={0.5,0.5};
 
 	// ensure we are within bounds
-	float x[1] = {a + base * ((float)0.5 + (float)idx, a + base * ((float)0.5 + (float)idx)};
+	float x[2] = {a[0] + base[0] * ((float)0.5 + (float)idx, a[0] + base[1] * ((float)0.5 + (float)idx)};
 	if (idx<n && idy<n)
-		dy[idx*idy + idx] = F1(x, params ) * base;
+		dy[offset] = F1(x, params ) * base;
 	__syncthreads();
 }
 void cudasafe( cudaError_t error, char* message)
@@ -37,12 +37,15 @@ int main( int argc, char* argv[])
 		
 	float *y = (float*)malloc(bytes);
 	
-	float a, b;
+	// float a, b;
 	int functionCode = atoi(argv[1]);
-	sscanf(argv[2], "%f", &a); 
-	sscanf(argv[3], "%f", &b);
- 
-	float base = (b - a) / (float)n;
+	// sscanf(argv[2], "%f", &a); 
+	// sscanf(argv[3], "%f", &b);
+ 	
+	float a[2]={0,0};
+	float b[2]={1,1};
+
+	float base[2] = {(b[0] - a[0]) / (float)n, (b[1] - a[1]) / (float)n};
 	printf("%f\n", base);
 	printf("%f\n", a);
 
