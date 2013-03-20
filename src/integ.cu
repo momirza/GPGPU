@@ -7,23 +7,19 @@
 //	return sin(x); 
 //}
 
-// define a function pointer type
-typedef float (*func)(const float *,const float *);
-__device__ func dF0 = F0;
-__device__ func dF1 = F1;
-__device__ func dF2 = F2;
-__device__ func dF3 = F3;
-__device__ func dF4 = F4;
-__device__ func dF5 = F5;
-__device__ func dF6 = F6;
 
 __global__ void func_kernel(func* f, float * dy, float a, float base, int n, int func_type)
 {
-	int id = blockIdx.x * blockDim.x + threadIdx.x;
+	int idx = blockIdx.x * blockDim.x + threadIdx.x;
+	int idy = blockIdx.y * blockDim.y + threadIdx.y;
+	int offset = idx + idy * blockDim.x * gridDim.x;
+
+	float params[2]={0.5,0.5};
+
 	// ensure we are within bounds
-	float x[1] = {a + base * ((float)0.5 + (float)id)};
-	if (id<n)
-		dy[id] = base * f[func_type](x, NULL);
+	float x[1] = {a + base * ((float)0.5 + (float)idx, a + base * ((float)0.5 + (float)idx)};
+	if (idx<n && idy<n)
+		dy[idx*idy + idx] = F1(x, params ) * base;
 	__syncthreads();
 }
 void cudasafe( cudaError_t error, char* message)
@@ -33,25 +29,6 @@ void cudasafe( cudaError_t error, char* message)
 
 int main( int argc, char* argv[])
 {
-	// allocatiing function pointers
-	int func_count = 1;
-	func * d_f;
-	func * h_f;	
-	h_f = (func*)malloc(func_count*sizeof(func));
-	cudasafe(cudaMalloc((void**)&d_f, func_count*sizeof(func)), "cudaMalloc");
-	cudasafe(cudaMemcpyFromSymbol( &h_f[0], dF0, sizeof(func)), "cudaMemcpyFromSymbol");	
-//	cudaMemcpyFromSymbol( &h_f[1], dF1, sizeof(func));	
-//	cudaMemcpyFromSymbol( &h_f[2], dF2, sizeof(func));	
-//	cudaMemcpyFromSymbol( &h_f[3], dF3, sizeof(func));	
-//	cudaMemcpyFromSymbol( &h_f[4], dF4, sizeof(func));	
-//	cudaMemcpyFromSymbol( &h_f[5], dF5, sizeof(func));	
-//	cudaMemcpyFromSymbol( &h_f[6], dF6, sizeof(func));	
-	//	   dst				
-	//	    |	src
-	//	    |	 |	size
-	cudasafe(cudaMemcpy(d_f, h_f, func_count*sizeof(func), cudaMemcpyHostToDevice), "cudaMemcpy");
-
-	// vector size
 	int n = 4096; 
 	// device input/output vectors
 	
@@ -72,15 +49,17 @@ int main( int argc, char* argv[])
 	// allocate memory for each vector on GPU
 	float * dy;
 	cudaMalloc(&dy, bytes);
-	
+	// allocate memory for params	
 	// number of threads in each thread block
 	int blockSize = 1024;
+	dim3 dimBlock(blockSize, blockSize);
 
 	// number of thread blocks in grid
 	int gridSize = (int) ceil((float)n/blockSize);
+	dim3 dimGrid(gridSize) = (gridSize, gridSize);
 	
 	//kernel execute
-	func_kernel<<<gridSize, blockSize>>>(d_f, dy, a, base, n, 0);
+	func_kernel<<<dimGrid, dimBlock>>>(&dF0, dy, a, base, n, 0);
 	
 	//copy array back
 	cudaMemcpy(y, dy, bytes, cudaMemcpyDeviceToHost);
@@ -93,9 +72,7 @@ int main( int argc, char* argv[])
 	printf("final result: %f\n", sum);
 
 	cudaFree(dy);
-	cudaFree(d_f);
 
-	free(h_f);
 	free(y);
 	return 0;
 }

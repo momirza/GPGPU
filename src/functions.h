@@ -9,8 +9,7 @@
 	params = []  (no parameters)
 */
 __device__ float F0(const float *x, const float *params)
-//{ return exp(x[0]); }
-{ 	return x[0]; }
+{ return exp(x[0]); }
 
 /* Name = sin(o1+x*y)*exp(o2+x)
 	Code = 1
