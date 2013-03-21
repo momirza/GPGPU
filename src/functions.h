@@ -100,6 +100,6 @@ __device__ float F6(const float *x, const float *params)
 }
 
 __device__ float myfunc(const float*x, const float * params) {
-	return x[0]+x[1];
+	return x[0]+x[1] + x[2];
 }
 #endif

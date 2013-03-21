@@ -107,6 +107,23 @@ __global__ void func_kernel3dF6(float * dy, float* a, float* base, float * param
         }
 }
 
+__global__ void func_kernel3dF9(float * dy, float* a, float* base, float * params, int n)
+{
+        uint32_t idx = blockIdx.x * blockDim.x + threadIdx.x;
+        uint32_t idy = blockIdx.y * blockDim.y + threadIdx.y;
+        uint32_t idz = blockIdx.z * blockDim.z + threadIdx.z;
+        uint32_t offset = idx + (idy + (blockDim.x * idz * gridDim.x))  * blockDim.x * gridDim.x;
+//      printf("%d, %d, %d, %d\n", idx, idy, idz, offset);
+        printf("%d, %d, %d, %d, %d\n", idx, idy, idz, offset, n);
+        // ensure we are within bounds
+
+        float x[3] = {a[0] + base[0] * (0.5f + idx), a[1] + base[1] * (0.5f + idy), a[2] + base[2] * (0.5f + idz)};
+	printf("%0.10f, %0.10f, %0.10f\n", x[0], x[1],x[2]);
+	printf("%0.10f, %0.10f, %0.10f\n", a[0], a[1],a[2]);
+        if (idx< n) {
+                dy[offset] = myfunc(x, params) ;
+        }
+}
 void cudasafe( cudaError_t error, char* message)
 {
    if(error!=cudaSuccess) { fprintf(stderr,"ERROR: %s : %i\n",message,error); exit(-1); }
@@ -141,6 +158,7 @@ double Integrate(
 		case 4:	k=3;	break;
 		case 5:	k=3;	break;
 		case 6:	k=3;	break;
+		case 9: k=3; 	break;
 		default:
 			fprintf(stderr, "Invalid function code.");
 			exit(1);
@@ -159,7 +177,7 @@ double Integrate(
 	float *y = (float*)malloc(bytes);
 	
 	float base[3] = {(b[0] - a[0])/n, (b[1] - a[1])/n, (b[2] - a[2])/n};
-
+	printf("base: %0.10f, %0.10f, %0.10f\n", base[0], base[1], base[2]);
 	// allocate memory for each vector on GPU
 	float * dy;
 	float * dbase;
@@ -170,11 +188,11 @@ double Integrate(
 	cudaMalloc(&dy, bytes);
 	cudaMalloc(&dbase, sizeof(base));
 //	cudaMalloc((void**)&dn, sizeof(int));	
-	cudaMalloc(&da, sizeof(a));
+	cudaMalloc(&da, k*sizeof(int));
 	cudaMalloc(&dparams, sizeof(params));
 
 	cudaMemcpy(dbase, base, sizeof(base), cudaMemcpyHostToDevice);
-	cudaMemcpy(da, a, sizeof(a), cudaMemcpyHostToDevice);
+	cudaMemcpy(da, a, k*sizeof(int), cudaMemcpyHostToDevice);
 	cudaMemcpy(dparams, params, sizeof(params), cudaMemcpyHostToDevice);
 //	cudaMemcpy(dn,&n,sizeof(int), cudaMemcpyHostToDevice);
 
@@ -208,7 +226,7 @@ double Integrate(
 	else { 
                 // number of threads in each thread block
 		printf("3D\n");
-                int blockSize = 8;
+                int blockSize = 2;
                 dim3 dimBlock(blockSize, blockSize, blockSize);
 
                 // number of thread blocks in grid
@@ -224,6 +242,8 @@ double Integrate(
                     func_kernel3dF5<<<dimGrid, dimBlock>>>(dy, da, dbase, dparams, n);
                 else if (functionCode==6)
                      func_kernel3dF6<<<dimGrid, dimBlock>>>(dy, da, dbase, dparams, n); 
+                else if (functionCode==9)
+                     func_kernel3dF9<<<dimGrid, dimBlock>>>(dy, da, dbase, dparams, n); 
                 else {
                     fprintf(stderr, "Invalid function code.");
 		}
@@ -253,11 +273,12 @@ double Integrate(
 }
 
 void testmyfunc(void) {
-        float a[2]={-1,-1};
-        float b[2]={2,2};
+//        float a[3]={0,0,0};
+        float a[3]={-1,-1,-1};
+        float b[3]={2,2,2};
         float error;
-        int n = 64;
-        Integrate(1, a, b, n, NULL, &error);
+        int n = 2;
+        Integrate(9, a, b, n, NULL, &error);
 }
 
 void test0(void) {
@@ -336,11 +357,11 @@ int main( int argc, char* argv[]) {
 //    test0(); // works
 //   test1();  // works
 //    test3(); // works
-
-    test4();
-    test2(); 
+	testmyfunc();
+//    test4();
+//    test2(); 
 //    test5(); // works
-    test6();
+//    test6();
 }
 
 
