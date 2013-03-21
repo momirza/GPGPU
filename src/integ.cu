@@ -16,7 +16,7 @@ __global__ void func_kernel(double * dy, double* a, double* base, double * param
 	double x[3] = {a[0] + base[0] * (0.5f + (double)idx), a[1] + base[1] * (0.5f + (double)idy), a[2] + base[2] * (0.5f + (double)idz),};
 	__syncthreads();
 	if (idx< n && idy<n && idz<n) {
-		dy[offset] = F3(x, params) ;
+		dy[offset] = F5(x, params) ;
 		for (int j=0; j<3; j++) {
 			dy[offset] *= base[j];
 		}
@@ -102,7 +102,7 @@ void test2(void) {
 	double exact=9.48557252267795;	// Correct to about 6 digits
 	double a[3]={-1,-1,-1};
 	double b[3]={1,1,1};
-	int n = 8;	
+	int n = 256;	
 	double error;
 	Integrate(2, a, b, n, NULL, &error); 	
 }
@@ -112,13 +112,40 @@ void test3(void) {
 	double a[3]={0,0,0};
 	double b[3]={5,5,5};
 	double params[1]={2};
-	int n = 512;	
+	int n = 256;	
 	double error;
 	Integrate(3, a, b, n, params, &error); 	
 }
 
+void test4(void) {
+        double exact=0.677779532970409f;	// Correct to about 8 digits
+	double a[3]={-16,-16,-16};	// We're going to cheat, and assume -16=-infinity.
+	double b[3]={1,1,1};
+	// We're going to use the covariance matrix with ones on the diagonal, and
+	// 0.5 off the diagonal.
+	const double PI=3.1415926535897932384626433832795f;
+	double params[10]={
+		1.5, -0.5, -0.5,
+		-0.5, 1.5, -0.5,
+		-0.5, -0.5, 1.5,
+		pow(2*PI,-3.0/2.0)*pow(0.5,-0.5) // This is the scale factor
+	};
+	int n = 64;
+	double error;
+        Integrate(4, a, b, n, params, &error);
+}
+void test5(void) {
+	double exact=13.4249394627056;	// Correct to about 6 digits
+	double a[3]={0,0,0};
+	double b[3]={3,3,3};
+        int n = 256;
+        double error;
+        Integrate(5, a, b, n, NULL, &error);
+}
+
+
 int main( int argc, char* argv[]) {
-	test3();
+	test5();
 }
 
 
