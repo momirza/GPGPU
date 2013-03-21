@@ -78,7 +78,7 @@ double Integrate(
 	for(uint32_t i=0; i<n*n*n; i++) {
 		sum += y[i];
 	}
-	printf("final result: %f\n", sum);
+	printf("final result: %0.10f\n", sum);
 
 	cudaFree(dy);
 	cudaFree(da);
