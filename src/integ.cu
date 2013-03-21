@@ -358,10 +358,10 @@ int main( int argc, char* argv[]) {
 //   test1();  // works
 //    test3(); // works
 	testmyfunc();
-//    test4();
-//    test2(); 
+    test4();
+    test2(); 
 //    test5(); // works
-//    test6();
+    test6();
 }
 
 
