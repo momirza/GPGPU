@@ -13,9 +13,6 @@ __global__ void func_kernel1d(double * dy, double* a, double* base, double * par
         double x[3] = {a[0] + base[0] * (0.5f + (double)idx)};
         if (idx< n) {
                 dy[offset] = F0(x, params);
-//                for (int j=0; j<1; j++) {
-//                        dy[offset] *= base[j];
-//                }
         }
 }
 
@@ -28,14 +25,9 @@ __global__ void func_kernel2d(double * dy, double* a, double* base, double * par
 //	printf("%d, %d, %d\n", idx, idy, offset);
         // ensure we are within bounds
 
-        double x[3] = {a[0] + base[0] * (0.5f + (double)idx), a[1] + base[1] * (0.5f + (double)idy)};
+        double x[2] = {a[0] + base[0] * (0.5f + (double)idx), a[1] + base[1] * (0.5f + (double)idy)};
         if (idx< n && idy<n) {
                 dy[offset] = F1(x, params);
-//		printf("%0.5f\n", dy[offset]);
-//                for (int j=0; j<2; j++) {
-//			printf("Base: %0.5f\n", base[j]);
-//                        dy[offset] *= base[j];
-//                }
         }
 }
 
@@ -52,9 +44,6 @@ __global__ void func_kernel3d(double * dy, double* a, double* base, double * par
 	double x[3] = {a[0] + base[0] * (0.5f + (double)idx), a[1] + base[1] * (0.5f + (double)idy), a[2] + base[2] * (0.5f + (double)idz)};
 	if (idx< n) {
 		dy[offset] = F5(x, params) ;
-//		for (int j=0; j<3; j++) {
-//			dy[offset] *= base[j];
-//		}
 	}
 }
 void cudasafe( cudaError_t error, char* message)
@@ -119,6 +108,7 @@ double Integrate(
 	//kernel execute
 	if (k==1) {
 
+		printf("1D\n");
 		// number of threads in each thread block
 		int blockSize = 32;
 		dim3 dimBlock(blockSize);
@@ -131,6 +121,7 @@ double Integrate(
 	}
 	else if (k==2) {
                 // number of threads in each thread block
+		printf("2D\n");
                 int blockSize = 32;
                 dim3 dimBlock(blockSize, blockSize);
 
@@ -143,6 +134,7 @@ double Integrate(
 	}
 	else { 
                 // number of threads in each thread block
+		printf("3D\n");
                 int blockSize = 8;
                 dim3 dimBlock(blockSize, blockSize, blockSize);
 
@@ -179,7 +171,7 @@ void test0(void) {
         double a[1]={0};
         double b[1]={1};
         double error;
-        int n = 32;
+        int n = 256;
         Integrate(0, a, b, n, NULL, &error);
 }
 
@@ -188,7 +180,7 @@ void test1(void) {
 	double b[2]={1,1};
 	double params[2]={0.5,0.5};
 	double error;
-	int n = 32; 
+	int n = 128; 
 	Integrate(1, a, b, n, params, &error); 	
 }
 
@@ -248,8 +240,9 @@ void test6(void) {
 }
 
 int main( int argc, char* argv[]) {
-	test0();
 	test1();
+	test0();
+	test5();
 }
 
 
