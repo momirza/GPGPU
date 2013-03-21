@@ -8,10 +8,7 @@ __global__ void func_kernel(float * dy, float* a, float* base, int n)
 {
 	int idx = blockIdx.x * blockDim.x + threadIdx.x;
 	int idy = blockIdx.y * blockDim.y + threadIdx.y;
-	int offset = idx + idy * blockDim.x ; 
-	__syncthreads();
-	printf("%d, %d, %d\n", idx, idy, offset);
-//	printf("%d\n",blockIdx.x);
+	int offset = idx + idy * blockDim.x * gridDim.x; 
 	float params[2]={0.5,0.5};
 
 	// ensure we are within bounds
@@ -19,10 +16,10 @@ __global__ void func_kernel(float * dy, float* a, float* base, int n)
 	__syncthreads();
 	if (idx< n && idy<n) {
 		dy[offset] = F1(x, params) ;
-		for (int j=0; j<2; j++)
+		for (int j=0; j<2; j++) {
 			dy[offset] *= base[j];
+		}
 	}
-	__syncthreads();
 }
 void cudasafe( cudaError_t error, char* message)
 {
@@ -40,10 +37,6 @@ int main( int argc, char* argv[])
 		
 	float *y = (float*)malloc(bytes);
 	
-	// float a, b;
-//	int functionCode = atoi(argv[1]);
-	// sscanf(argv[2], "%f", &a); 
-	// sscanf(argv[3], "%f", &b);
  	
 	float a[2]={0,0};
 	float b[2]={1,1};
@@ -89,4 +82,5 @@ int main( int argc, char* argv[])
 
 	return 0;
 }
+
 
