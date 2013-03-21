@@ -1,25 +1,21 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include "functions.h"
-//CUDA kernel
-
-//__device__ float F1(float x){
-//	return sin(x); 
-//}
 
 
-__global__ void func_kernel(func* f, float * dy, float* a, float* base, int n, int func_type)
+
+__global__ void func_kernel(float * dy, float* a, float* base, int n)
 {
 	int idx = blockIdx.x * blockDim.x + threadIdx.x;
 	int idy = blockIdx.y * blockDim.y + threadIdx.y;
-	int offset = idx + idy * blockDim.x * gridDim.x;
+	int offset = idx + idy * blockDim.x * gridDim.x ; 
 
 	float params[2]={0.5,0.5};
 
 	// ensure we are within bounds
-	float x[2] = {a[0] + base[0] * ((float)0.5 + (float)idx, a[0] + base[1] * ((float)0.5 + (float)idx)};
+	float x[2] = {a[0] + base[0] * ((float)0.5 + (float)idx), a[0] + base[1] * ((float)0.5 + (float)idy)};
 	if (idx<n && idy<n)
-		dy[offset] = F1(x, params ) * base;
+		dy[offset] = F1(x, params) ;
 	__syncthreads();
 }
 void cudasafe( cudaError_t error, char* message)
@@ -29,7 +25,7 @@ void cudasafe( cudaError_t error, char* message)
 
 int main( int argc, char* argv[])
 {
-	int n = 4096; 
+	int n = 1024; 
 	// device input/output vectors
 	
 	// size, in bytes, of each vector
@@ -46,8 +42,6 @@ int main( int argc, char* argv[])
 	float b[2]={1,1};
 
 	float base[2] = {(b[0] - a[0]) / (float)n, (b[1] - a[1]) / (float)n};
-	printf("%f\n", base);
-	printf("%f\n", a);
 
 	// allocate memory for each vector on GPU
 	float * dy;
@@ -59,17 +53,17 @@ int main( int argc, char* argv[])
 
 	// number of thread blocks in grid
 	int gridSize = (int) ceil((float)n/blockSize);
-	dim3 dimGrid(gridSize) = (gridSize, gridSize);
+	dim3 dimGrid(gridSize, gridSize);
 	
 	//kernel execute
-	func_kernel<<<dimGrid, dimBlock>>>(&dF0, dy, a, base, n, 0);
+	func_kernel<<<dimGrid, dimBlock>>>(dy, a, base, n);
 	
 	//copy array back
 	cudaMemcpy(y, dy, bytes, cudaMemcpyDeviceToHost);
 	
 	float sum = 0;
 
-	for(int i=0; i<n; i++) {
+	for(int i=0; i<n*n; i++) {
 		sum += y[i];
 	}
 	printf("final result: %f\n", sum);
