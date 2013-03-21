@@ -120,6 +120,12 @@ double Integrate(
     float *errorEstimate // Estimated error in integral
 ) 
 {
+	const int nsize = 10000000;
+	const int sz = sizeof(float) * nsize;
+	float *devicemem;
+	cudaMalloc((void **)&devicemem, sz);
+
+	cudaMemset(devicemem, 0, sz); // zeros all the bytes in devicemem
 	int n0=n, n1=n, n2=n;	// By default use n points in each dimension
 	int k;	
 	switch(functionCode){
@@ -154,18 +160,18 @@ double Integrate(
 	float * dbase;
 	float * da;
 	float * dparams;
-	int  * dn;
+//	int  * dn;
 	
 	cudaMalloc(&dy, bytes);
 	cudaMalloc(&dbase, sizeof(base));
-	cudaMalloc((void**)&dn, sizeof(int));	
+//	cudaMalloc((void**)&dn, sizeof(int));	
 	cudaMalloc(&da, sizeof(a));
 	cudaMalloc(&dparams, sizeof(params));
 
 	cudaMemcpy(dbase, base, sizeof(base), cudaMemcpyHostToDevice);
 	cudaMemcpy(da, a, sizeof(a), cudaMemcpyHostToDevice);
 	cudaMemcpy(dparams, params, sizeof(params), cudaMemcpyHostToDevice);
-	cudaMemcpy(dn,&n,sizeof(int), cudaMemcpyHostToDevice);
+//	cudaMemcpy(dn,&n,sizeof(int), cudaMemcpyHostToDevice);
 
 	//kernel execute
 	if (k==1) {
@@ -235,10 +241,10 @@ double Integrate(
 	cudaFree(da);
 	cudaFree(dbase);
 	cudaFree(dparams);
-	cudaFree(dn);
+//	cudaFree(dn);
 
 	free(y);
-
+	cudaMemset(devicemem, 0, sz); // zeros all the bytes in devicemem
 	return sum;
 }
 
@@ -307,7 +313,7 @@ void test5(void) {
 	float exact=13.4249394627056;	// Correct to about 6 digits
 	float a[3]={0,0,0};
 	float b[3]={3,3,3};
-        int n = 256;
+        int n = 512;
         float error;
         Integrate(5, a, b, n, NULL, &error);
 }
@@ -317,19 +323,19 @@ void test6(void) {
 	float a[3]={-4,-4,-4};
 	float b[3]={4,4,4};
 	float params[2]={3,0.01};
-        int n = 1024;
+        int n = 128;
         float error;
         Integrate(6, a, b, n, params, &error);
 }
 
 int main( int argc, char* argv[]) {
-//    test0();
-//    test1();
-//    test2();
- //   test3();
-//    test4();
-//    test5();
+//    test0(); // works
+//   test1();  // works
     test3();
+    test4();
+    test2(); 
+//    test5(); // works
+    test6();
 }
 
 
