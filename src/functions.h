@@ -12,7 +12,7 @@ double F0(const double *x, const double *params)
 { return exp(x[0]); }
 
 double myfunc(const double *x, const double *params)
-{ return x[0] + x[1]; }
+{ return x[0] + x[1] + x[2]; }
 
 /* Name = sin(o1+x*y)*exp(o2+x)
 	Code = 1

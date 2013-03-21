@@ -31,7 +31,7 @@ double IntegrateExample(
 		case 4:	k=3;	break;
 		case 5:	k=3;	break;
 		case 6:	k=3;	break;
-		case 9:	k=2;	break;
+		case 9:	k=3;	break;
 		default:
 			fprintf(stderr, "Invalid function code.");
 			exit(1);
@@ -108,9 +108,9 @@ void Test0()
 
 void mytest()
 {
-	double exact=8;	// Exact result
-	double a[2]={0, 0};
-	double b[2]={2, 2};
+	double exact=16;	// Exact result
+	double a[3]={-1, -1, -1};
+	double b[3]={2, 2, 2};
 	int n;
 	
 	for(n=2;n<=512;n*=2){		
