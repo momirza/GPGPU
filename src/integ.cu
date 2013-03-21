@@ -120,6 +120,10 @@ double Integrate(
     float *errorEstimate // Estimated error in integral
 ) 
 {
+	size_t freeMem = 0;
+	size_t totalMem = 0;
+	cudaMemGetInfo(&freeMem, &totalMem);  
+	printf("Memory avaliable: Free: %lu, Total: %lu\n",freeMem, totalMem);
 	const int nsize = 10000000;
 	const int sz = sizeof(float) * nsize;
 	float *devicemem;
@@ -221,7 +225,6 @@ double Integrate(
                      func_kernel3dF5<<<dimGrid, dimBlock>>>(dy, da, dbase, dparams, n); 
                 else {
                     fprintf(stderr, "Invalid function code.");
-                   exit(1);
 		}
 	}
 
@@ -331,7 +334,8 @@ void test6(void) {
 int main( int argc, char* argv[]) {
 //    test0(); // works
 //   test1();  // works
-    test3();
+//    test3(); // works
+
     test4();
     test2(); 
 //    test5(); // works
