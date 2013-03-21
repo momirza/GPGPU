@@ -203,19 +203,19 @@ double Integrate(
                 // number of thread blocks in grid
                 int gridSize = (int) ceil((float)n/blockSize);
                 dim3 dimGrid(gridSize, gridSize, gridSize);
-                if (functionCode==2)
-                    func_kernel3dF2<<<dimGrid, dimBlock>>>(dy, da, dbase, dparams, n);
-                else if (functionCode==3)
-                    func_kernel3dF3<<<dimGrid, dimBlock>>>(dy, da, dbase, dparams, n);
-                else if (functionCode==4)
-                    func_kernel3dF4<<<dimGrid, dimBlock>>>(dy, da, dbase, dparams, n);
-                else if (functionCode==5)
-                    func_kernel3dF5<<<dimGrid, dimBlock>>>(dy, da, dbase, dparams, n);
-                else if (functionCode==6)
-                    func_kernel3dF6<<<dimGrid, dimBlock>>>(dy, da, dbase, dparams, n); 
-                else 
-                    fprintf(stderr, "Invalid function code.");
-                    exit(1);
+//                if (functionCode==2)
+//                    func_kernel3dF2<<<dimGrid, dimBlock>>>(dy, da, dbase, dparams, n);
+//                else if (functionCode==3)
+//                    func_kernel3dF3<<<dimGrid, dimBlock>>>(dy, da, dbase, dparams, n);
+//                else if (functionCode==4)
+//                    func_kernel3dF4<<<dimGrid, dimBlock>>>(dy, da, dbase, dparams, n);
+//                else if (functionCode==5)
+//                    func_kernel3dF5<<<dimGrid, dimBlock>>>(dy, da, dbase, dparams, n);
+//                else if (functionCode==6)
+                    func_kernel3dF5<<<dimGrid, dimBlock>>>(dy, da, dbase, dparams, n); 
+//                else 
+//                    fprintf(stderr, "Invalid function code.");
+ //                   exit(1);
 
 	}
 
@@ -235,6 +235,7 @@ double Integrate(
 	cudaFree(da);
 	cudaFree(dbase);
 	cudaFree(dparams);
+	cudaFree(dn);
 
 	free(y);
 
@@ -322,13 +323,13 @@ void test6(void) {
 }
 
 int main( int argc, char* argv[]) {
-    test0();
-    test1();
-    test2();
-    test3();
-    test4();
+//    test0();
+//    test1();
+//    test2();
+ //   test3();
+//    test4();
+//    test5();
     test5();
-	test6();
 }
 
 
