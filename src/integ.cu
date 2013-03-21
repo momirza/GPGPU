@@ -226,7 +226,7 @@ double Integrate(
 	else { 
                 // number of threads in each thread block
 		printf("3D\n");
-                int blockSize = 2;
+                int blockSize = 8;
                 dim3 dimBlock(blockSize, blockSize, blockSize);
 
                 // number of thread blocks in grid
@@ -277,7 +277,7 @@ void testmyfunc(void) {
         float a[3]={-1,-1,-1};
         float b[3]={2,2,2};
         float error;
-        int n = 2;
+        int n = 32;
         Integrate(9, a, b, n, NULL, &error);
 }
 
@@ -302,7 +302,7 @@ void test2(void) {
 	float exact=9.48557252267795;	// Correct to about 6 digits
 	float a[3]={-1,-1,-1};
 	float b[3]={1,1,1};
-	int n = 256;	
+	int n = 512;	
 	float error;
 	Integrate(2, a, b, n, NULL, &error); 	
 }
@@ -330,7 +330,7 @@ void test4(void) {
 		-0.5, -0.5, 1.5,
 		pow(2*PI,-3.0/2.0)*pow(0.5,-0.5) // This is the scale factor
 	};
-	int n = 64;
+	int n = 8;
 	float error;
         Integrate(4, a, b, n, params, &error);
 }
@@ -348,7 +348,7 @@ void test6(void) {
 	float a[3]={-4,-4,-4};
 	float b[3]={4,4,4};
 	float params[2]={3,0.01};
-        int n = 128;
+        int n = 256;
         float error;
         Integrate(6, a, b, n, params, &error);
 }
@@ -358,10 +358,10 @@ int main( int argc, char* argv[]) {
 //   test1();  // works
 //    test3(); // works
 	testmyfunc();
-    test4();
-    test2(); 
+    test4(); //doesn't work
+    test2(); //works
 //    test5(); // works
-    test6();
+    test6(); // works
 }
 
 
