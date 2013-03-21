@@ -8,14 +8,19 @@ __global__ void func_kernel(float * dy, float* a, float* base, int n)
 {
 	int idx = blockIdx.x * blockDim.x + threadIdx.x;
 	int idy = blockIdx.y * blockDim.y + threadIdx.y;
-	int offset = idx + idy * blockDim.x * gridDim.x ; 
-
+	int offset = idx + idy * blockDim.x ; 
+	__syncthreads();
+	printf("%d, %d, %d\n", idx, idy, offset);
 	float params[2]={0.5,0.5};
 
 	// ensure we are within bounds
-	float x[2] = {a[0] + base[0] * ((float)0.5 + (float)idx), a[0] + base[1] * ((float)0.5 + (float)idy)};
-	if (idx<n && idy<n)
+	float x[2] = {a[0] + base[0] * (0.5f + (float)idx), a[0] + base[1] * (0.5f + (float)idy)};
+	__syncthreads();
+	if (idx< n && idy<n) {
 		dy[offset] = F1(x, params) ;
+		for (int j=0; j<2; j++)
+			dy[offset] *= base[j];
+	}
 	__syncthreads();
 }
 void cudasafe( cudaError_t error, char* message)
@@ -25,16 +30,17 @@ void cudasafe( cudaError_t error, char* message)
 
 int main( int argc, char* argv[])
 {
-	int n = 1024; 
+	//int n = 32; 
 	// device input/output vectors
+	int n = atoi(argv[1]);
 	
 	// size, in bytes, of each vector
-	size_t bytes = n*sizeof(float);
+	size_t bytes = (n*n)*sizeof(float);
 		
 	float *y = (float*)malloc(bytes);
 	
 	// float a, b;
-	int functionCode = atoi(argv[1]);
+//	int functionCode = atoi(argv[1]);
 	// sscanf(argv[2], "%f", &a); 
 	// sscanf(argv[3], "%f", &b);
  	
@@ -45,18 +51,24 @@ int main( int argc, char* argv[])
 
 	// allocate memory for each vector on GPU
 	float * dy;
+	float * dbase;
+	float * da;
 	cudaMalloc(&dy, bytes);
+	cudaMalloc(&dbase, sizeof(base));
+	cudaMalloc(&da, sizeof(a));
 	// allocate memory for params	
 	// number of threads in each thread block
-	int blockSize = 1024;
+	int blockSize = 32;
 	dim3 dimBlock(blockSize, blockSize);
 
 	// number of thread blocks in grid
 	int gridSize = (int) ceil((float)n/blockSize);
 	dim3 dimGrid(gridSize, gridSize);
 	
+	cudaMemcpy(dbase, base, sizeof(base), cudaMemcpyHostToDevice);
+	cudaMemcpy(da, a, sizeof(a), cudaMemcpyHostToDevice);
 	//kernel execute
-	func_kernel<<<dimGrid, dimBlock>>>(dy, a, base, n);
+	func_kernel<<<dimGrid, dimBlock>>>(dy, da, dbase, n);
 	
 	//copy array back
 	cudaMemcpy(y, dy, bytes, cudaMemcpyDeviceToHost);
@@ -69,8 +81,11 @@ int main( int argc, char* argv[])
 	printf("final result: %f\n", sum);
 
 	cudaFree(dy);
+	cudaFree(da);
+	cudaFree(dbase);
 
 	free(y);
+
 	return 0;
 }
 
