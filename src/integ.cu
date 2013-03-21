@@ -11,10 +11,11 @@ __global__ void func_kernel(float * dy, float* a, float* base, int n)
 	int offset = idx + idy * blockDim.x ; 
 	__syncthreads();
 	printf("%d, %d, %d\n", idx, idy, offset);
+//	printf("%d\n",blockIdx.x);
 	float params[2]={0.5,0.5};
 
 	// ensure we are within bounds
-	float x[2] = {a[0] + base[0] * (0.5f + (float)idx), a[0] + base[1] * (0.5f + (float)idy)};
+	float x[2] = {a[0] + base[0] * (0.5f + (float)idx), a[1] + base[1] * (0.5f + (float)idy)};
 	__syncthreads();
 	if (idx< n && idy<n) {
 		dy[offset] = F1(x, params) ;
