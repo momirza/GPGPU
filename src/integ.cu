@@ -32,7 +32,7 @@ __global__ void func_kernel2d(float * dy, float* a, float* base, float * params,
 }
 
 
-__global__ void func_kernel3d(float * dy, float* a, float* base, float * params, int n)
+__global__ void func_kernel3dF2(float * dy, float* a, float* base, float * params, int n)
 {
 	uint32_t idx = blockIdx.x * blockDim.x + threadIdx.x;
 	uint32_t idy = blockIdx.y * blockDim.y + threadIdx.y;
@@ -46,6 +46,67 @@ __global__ void func_kernel3d(float * dy, float* a, float* base, float * params,
 		dy[offset] = F2(x, params) ;
 	}
 }
+
+__global__ void func_kernel3dF3(float * dy, float* a, float* base, float * params, int n)
+{
+        uint32_t idx = blockIdx.x * blockDim.x + threadIdx.x;
+        uint32_t idy = blockIdx.y * blockDim.y + threadIdx.y;
+        uint32_t idz = blockIdx.z * blockDim.z + threadIdx.z;
+        uint32_t offset = idx + (idy + (blockDim.x * idz * gridDim.x))  * blockDim.x * gridDim.x;
+//      printf("%d, %d, %d, %d\n", idx, idy, idz, offset);
+        // ensure we are within bounds
+
+        float x[3] = {a[0] + base[0] * (0.5f + idx), a[1] + base[1] * (0.5f + idy), a[2] + base[2] * (0.5f + idz)};
+        if (idx< n) {
+                dy[offset] = F3(x, params) ;
+        }
+}
+
+__global__ void func_kernel3dF4(float * dy, float* a, float* base, float * params, int n)
+{
+        uint32_t idx = blockIdx.x * blockDim.x + threadIdx.x;
+        uint32_t idy = blockIdx.y * blockDim.y + threadIdx.y;
+        uint32_t idz = blockIdx.z * blockDim.z + threadIdx.z;
+        uint32_t offset = idx + (idy + (blockDim.x * idz * gridDim.x))  * blockDim.x * gridDim.x;
+//      printf("%d, %d, %d, %d\n", idx, idy, idz, offset);
+        // ensure we are within bounds
+
+        float x[3] = {a[0] + base[0] * (0.5f + idx), a[1] + base[1] * (0.5f + idy), a[2] + base[2] * (0.5f + idz)};
+        if (idx< n) {
+                dy[offset] = F4(x, params) ;
+        }
+}
+
+__global__ void func_kernel3dF5(float * dy, float* a, float* base, float * params, int n)
+{
+        uint32_t idx = blockIdx.x * blockDim.x + threadIdx.x;
+        uint32_t idy = blockIdx.y * blockDim.y + threadIdx.y;
+        uint32_t idz = blockIdx.z * blockDim.z + threadIdx.z;
+        uint32_t offset = idx + (idy + (blockDim.x * idz * gridDim.x))  * blockDim.x * gridDim.x;
+//      printf("%d, %d, %d, %d\n", idx, idy, idz, offset);
+        // ensure we are within bounds
+
+        float x[3] = {a[0] + base[0] * (0.5f + idx), a[1] + base[1] * (0.5f + idy), a[2] + base[2] * (0.5f + idz)};
+        if (idx< n) {
+                dy[offset] = F5(x, params) ;
+        }
+}
+
+__global__ void func_kernel3dF6(float * dy, float* a, float* base, float * params, int n)
+{
+        uint32_t idx = blockIdx.x * blockDim.x + threadIdx.x;
+        uint32_t idy = blockIdx.y * blockDim.y + threadIdx.y;
+        uint32_t idz = blockIdx.z * blockDim.z + threadIdx.z;
+        uint32_t offset = idx + (idy + (blockDim.x * idz * gridDim.x))  * blockDim.x * gridDim.x;
+//      printf("%d, %d, %d, %d\n", idx, idy, idz, offset);
+        // ensure we are within bounds
+
+        float x[3] = {a[0] + base[0] * (0.5f + idx), a[1] + base[1] * (0.5f + idy), a[2] + base[2] * (0.5f + idz)};
+        if (idx< n) {
+                dy[offset] = F6(x, params) ;
+        }
+}
+
 void cudasafe( cudaError_t error, char* message)
 {
    if(error!=cudaSuccess) { fprintf(stderr,"ERROR: %s : %i\n",message,error); exit(-1); }
