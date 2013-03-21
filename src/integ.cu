@@ -3,21 +3,21 @@
 #include <stdlib.h>
 #include "functions.h"
 
-__global__ void func_kernel1d(double * dy, double* a, double* base, double * params, int n)
+__global__ void func_kernel1d(float * dy, float* a, float* base, float * params, int n)
 {
         uint32_t idx = blockIdx.x * blockDim.x + threadIdx.x;
         uint32_t offset = idx; 
 //      printf("%d, %d, %d, %d\n", idx, idy, idz, offset);
         // ensure we are within bounds
 
-        double x[3] = {a[0] + base[0] * (0.5f + (double)idx)};
+        float x[3] = {a[0] + base[0] * (0.5f + (float)idx)};
         if (idx< n) {
                 dy[offset] = F0(x, params);
         }
 }
 
 
-__global__ void func_kernel2d(double * dy, double* a, double* base, double * params, int n)
+__global__ void func_kernel2d(float * dy, float* a, float* base, float * params, int n)
 {
         uint32_t idx = blockIdx.x * blockDim.x + threadIdx.x;
         uint32_t idy = blockIdx.y * blockDim.y + threadIdx.y;
@@ -25,14 +25,14 @@ __global__ void func_kernel2d(double * dy, double* a, double* base, double * par
 //	printf("%d, %d, %d\n", idx, idy, offset);
         // ensure we are within bounds
 
-        double x[2] = {a[0] + base[0] * (0.5f + (double)idx), a[1] + base[1] * (0.5f + (double)idy)};
+        float x[2] = {a[0] + base[0] * (0.5f + (float)idx), a[1] + base[1] * (0.5f + (float)idy)};
         if (idx< n && idy<n) {
-                dy[offset] = F1(x, params);
+                dy[offset] = myfunc(x, params);
         }
 }
 
 
-__global__ void func_kernel3d(double * dy, double* a, double* base, double * params, int n)
+__global__ void func_kernel3d(float * dy, float* a, float* base, float * params, int n)
 {
 	uint32_t idx = blockIdx.x * blockDim.x + threadIdx.x;
 	uint32_t idy = blockIdx.y * blockDim.y + threadIdx.y;
@@ -41,7 +41,7 @@ __global__ void func_kernel3d(double * dy, double* a, double* base, double * par
 //	printf("%d, %d, %d, %d\n", idx, idy, idz, offset);
 	// ensure we are within bounds
 
-	double x[3] = {a[0] + base[0] * (0.5f + (double)idx), a[1] + base[1] * (0.5f + (double)idy), a[2] + base[2] * (0.5f + (double)idz)};
+	float x[3] = {a[0] + base[0] * (0.5f + (float)idx), a[1] + base[1] * (0.5f + (float)idy), a[2] + base[2] * (0.5f + (float)idz)};
 	if (idx< n) {
 		dy[offset] = F5(x, params) ;
 	}
@@ -51,13 +51,13 @@ void cudasafe( cudaError_t error, char* message)
    if(error!=cudaSuccess) { fprintf(stderr,"ERROR: %s : %i\n",message,error); exit(-1); }
 }
 
-double Integrate(
+float Integrate(
     int functionCode, // Identifies the function (and dimensionality k)
-    const double *a, // An array of k lower bounds
-    const double *b, // An array of k upper bounds
-    double n, // A target accuracy
-    const double *params, // Parameters to function
-    double *errorEstimate // Estimated error in integral
+    const float *a, // An array of k lower bounds
+    const float *b, // An array of k upper bounds
+    float n, // A target accuracy
+    const float *params, // Parameters to function
+    float *errorEstimate // Estimated error in integral
 ) 
 {
 	int n0=n, n1=n, n2=n;	// By default use n points in each dimension
@@ -83,17 +83,17 @@ double Integrate(
 		n1=1;
 	}
 	// size, in bytes, of each vector
-	size_t bytes = (n0*n1*n2)*sizeof(double);
+	size_t bytes = (n0*n1*n2)*sizeof(float);
 		
-	double *y = (double*)malloc(bytes);
+	float *y = (float*)malloc(bytes);
 	
-	double base[3] = {(b[0] - a[0]) / (double)n, (b[1] - a[1]) / (double)n, (b[2] - a[2]) / (double)n};
+	float base[3] = {(b[0] - a[0]) / (float)n, (b[1] - a[1]) / (float)n, (b[2] - a[2]) / (float)n};
 
 	// allocate memory for each vector on GPU
-	double * dy;
-	double * dbase;
-	double * da;
-	double * dparams;
+	float * dy;
+	float * dbase;
+	float * da;
+	float * dparams;
 	
 	cudaMalloc(&dy, bytes);
 	cudaMalloc(&dbase, sizeof(base));
@@ -114,7 +114,7 @@ double Integrate(
 		dim3 dimBlock(blockSize);
 
 		// number of thread blocks in grid
-		int gridSize = (int) ceil((double)n/blockSize);
+		int gridSize = (int) ceil((float)n/blockSize);
 		dim3 dimGrid(gridSize);
 
 		func_kernel1d<<<dimGrid, dimBlock>>>(dy, da, dbase, dparams, n);
@@ -126,7 +126,7 @@ double Integrate(
                 dim3 dimBlock(blockSize, blockSize);
 
                 // number of thread blocks in grid
-                int gridSize = (int) ceil((double)n/blockSize);
+                int gridSize = (int) ceil((float)n/blockSize);
                 dim3 dimGrid(gridSize, gridSize);
 
                 func_kernel2d<<<dimGrid, dimBlock>>>(dy, da, dbase, dparams, n);	
@@ -139,7 +139,7 @@ double Integrate(
                 dim3 dimBlock(blockSize, blockSize, blockSize);
 
                 // number of thread blocks in grid
-                int gridSize = (int) ceil((double)n/blockSize);
+                int gridSize = (int) ceil((float)n/blockSize);
                 dim3 dimGrid(gridSize, gridSize, gridSize);
 
                 func_kernel3d<<<dimGrid, dimBlock>>>(dy, da, dbase, dparams, n);	
@@ -149,7 +149,7 @@ double Integrate(
 	//copy array back
 	cudaMemcpy(y, dy, bytes, cudaMemcpyDeviceToHost);
 	
-	double sum = 0;
+	float sum = 0;
 	for(uint32_t i=0; i<n0*n1*n2; i++) {
 		sum += y[i];
 	}
@@ -167,82 +167,88 @@ double Integrate(
 	return sum;
 }
 
+void testmyfunc(void) {
+        float a[2]={-1,-1};
+        float b[2]={2,2};
+        float error;
+        int n = 64;
+        Integrate(1, a, b, n, NULL, &error);
+}
+
 void test0(void) {
-        double a[1]={0};
-        double b[1]={1};
-        double error;
+        float a[1]={0};
+        float b[1]={1};
+        float error;
         int n = 256;
         Integrate(0, a, b, n, NULL, &error);
 }
 
 void test1(void) {
-	double a[2]={0,0};
-	double b[2]={1,1};
-	double params[2]={0.5,0.5};
-	double error;
+	float a[2]={0,0};
+	float b[2]={1,1};
+	float params[2]={0.5,0.5};
+	float error;
 	int n = 128; 
 	Integrate(1, a, b, n, params, &error); 	
 }
 
 void test2(void) {
-	double exact=9.48557252267795;	// Correct to about 6 digits
-	double a[3]={-1,-1,-1};
-	double b[3]={1,1,1};
+	float exact=9.48557252267795;	// Correct to about 6 digits
+	float a[3]={-1,-1,-1};
+	float b[3]={1,1,1};
 	int n = 256;	
-	double error;
+	float error;
 	Integrate(2, a, b, n, NULL, &error); 	
 }
 
 void test3(void) {
-	double exact=-7.18387139942142f;	// Correct to about 6 digits
-	double a[3]={0,0,0};
-	double b[3]={5,5,5};
-	double params[1]={2};
+	float exact=-7.18387139942142f;	// Correct to about 6 digits
+	float a[3]={0,0,0};
+	float b[3]={5,5,5};
+	float params[1]={2};
 	int n = 256;	
-	double error;
+	float error;
 	Integrate(3, a, b, n, params, &error); 	
 }
 
 void test4(void) {
-        double exact=0.677779532970409f;	// Correct to about 8 digits
-	double a[3]={-16,-16,-16};	// We're going to cheat, and assume -16=-infinity.
-	double b[3]={1,1,1};
+        float exact=0.677779532970409f;	// Correct to about 8 digits
+	float a[3]={-16,-16,-16};	// We're going to cheat, and assume -16=-infinity.
+	float b[3]={1,1,1};
 	// We're going to use the covariance matrix with ones on the diagonal, and
 	// 0.5 off the diagonal.
-	const double PI=3.1415926535897932384626433832795f;
-	double params[10]={
+	const float PI=3.1415926535897932384626433832795f;
+	float params[10]={
 		1.5, -0.5, -0.5,
 		-0.5, 1.5, -0.5,
 		-0.5, -0.5, 1.5,
 		pow(2*PI,-3.0/2.0)*pow(0.5,-0.5) // This is the scale factor
 	};
 	int n = 64;
-	double error;
+	float error;
         Integrate(4, a, b, n, params, &error);
 }
 void test5(void) {
-	double exact=13.4249394627056;	// Correct to about 6 digits
-	double a[3]={0,0,0};
-	double b[3]={3,3,3};
+	float exact=13.4249394627056;	// Correct to about 6 digits
+	float a[3]={0,0,0};
+	float b[3]={3,3,3};
         int n = 256;
-        double error;
+        float error;
         Integrate(5, a, b, n, NULL, &error);
 }
 void test6(void) {
 
-	double exact=   2.261955088165;
-	double a[3]={-4,-4,-4};
-	double b[3]={4,4,4};
-	double params[2]={3,0.01};
+	float exact=   2.261955088165;
+	float a[3]={-4,-4,-4};
+	float b[3]={4,4,4};
+	float params[2]={3,0.01};
         int n = 256;
-        double error;
+        float error;
         Integrate(6, a, b, n, params, &error);
 }
 
 int main( int argc, char* argv[]) {
-	test1();
-	test0();
-	test5();
+	testmyfunc();
 }
 
 
