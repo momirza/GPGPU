@@ -10,7 +10,7 @@ __global__ void func_kernel1d(float * dy, float* a, float* base, float * params,
 //      printf("%d, %d, %d, %d\n", idx, idy, idz, offset);
         // ensure we are within bounds
 
-        float x[3] = {a[0] + base[0] * (0.5f + (float)idx)};
+        float x[3] = {a[0] + base[0] * (0.5f + idx)};
         if (idx< n) {
                 dy[offset] = F0(x, params);
         }
@@ -25,7 +25,7 @@ __global__ void func_kernel2d(float * dy, float* a, float* base, float * params,
 //	printf("%d, %d, %d\n", idx, idy, offset);
         // ensure we are within bounds
 
-        float x[2] = {a[0] + base[0] * (0.5f + (float)idx), a[1] + base[1] * (0.5f + (float)idy)};
+        float x[2] = {a[0] + base[0] * (0.5f + idx), a[1] + base[1] * (0.5f + idy)};
         if (idx< n && idy<n) {
                 dy[offset] = myfunc(x, params);
         }
@@ -41,9 +41,9 @@ __global__ void func_kernel3d(float * dy, float* a, float* base, float * params,
 //	printf("%d, %d, %d, %d\n", idx, idy, idz, offset);
 	// ensure we are within bounds
 
-	float x[3] = {a[0] + base[0] * (0.5f + (float)idx), a[1] + base[1] * (0.5f + (float)idy), a[2] + base[2] * (0.5f + (float)idz)};
+	float x[3] = {a[0] + base[0] * (0.5f + idx), a[1] + base[1] * (0.5f + idy), a[2] + base[2] * (0.5f + idz)};
 	if (idx< n) {
-		dy[offset] = F5(x, params) ;
+		dy[offset] = F2(x, params) ;
 	}
 }
 void cudasafe( cudaError_t error, char* message)
@@ -51,11 +51,11 @@ void cudasafe( cudaError_t error, char* message)
    if(error!=cudaSuccess) { fprintf(stderr,"ERROR: %s : %i\n",message,error); exit(-1); }
 }
 
-float Integrate(
+double Integrate(
     int functionCode, // Identifies the function (and dimensionality k)
     const float *a, // An array of k lower bounds
     const float *b, // An array of k upper bounds
-    float n, // A target accuracy
+    int n, // A target accuracy
     const float *params, // Parameters to function
     float *errorEstimate // Estimated error in integral
 ) 
@@ -87,23 +87,25 @@ float Integrate(
 		
 	float *y = (float*)malloc(bytes);
 	
-	float base[3] = {(b[0] - a[0]) / (float)n, (b[1] - a[1]) / (float)n, (b[2] - a[2]) / (float)n};
+	float base[3] = {(b[0] - a[0])/n, (b[1] - a[1])/n, (b[2] - a[2])/n};
 
 	// allocate memory for each vector on GPU
 	float * dy;
 	float * dbase;
 	float * da;
 	float * dparams;
+	int  * dn;
 	
 	cudaMalloc(&dy, bytes);
 	cudaMalloc(&dbase, sizeof(base));
+	cudaMalloc((void**)&dn, sizeof(int));	
 	cudaMalloc(&da, sizeof(a));
 	cudaMalloc(&dparams, sizeof(params));
 
 	cudaMemcpy(dbase, base, sizeof(base), cudaMemcpyHostToDevice);
 	cudaMemcpy(da, a, sizeof(a), cudaMemcpyHostToDevice);
 	cudaMemcpy(dparams, params, sizeof(params), cudaMemcpyHostToDevice);
-
+	cudaMemcpy(dn,&n,sizeof(int), cudaMemcpyHostToDevice);
 
 	//kernel execute
 	if (k==1) {
@@ -149,7 +151,7 @@ float Integrate(
 	//copy array back
 	cudaMemcpy(y, dy, bytes, cudaMemcpyDeviceToHost);
 	
-	float sum = 0;
+	double sum = 0;
 	for(uint32_t i=0; i<n0*n1*n2; i++) {
 		sum += y[i];
 	}
@@ -242,13 +244,14 @@ void test6(void) {
 	float a[3]={-4,-4,-4};
 	float b[3]={4,4,4};
 	float params[2]={3,0.01};
-        int n = 256;
+        int n = 1024;
         float error;
         Integrate(6, a, b, n, params, &error);
 }
 
 int main( int argc, char* argv[]) {
 	testmyfunc();
+	test2();
 }
 
 
