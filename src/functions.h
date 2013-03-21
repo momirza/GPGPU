@@ -1,22 +1,25 @@
 #ifndef cw2_functions_h
 #define cw2_functions_h
 
-#include "math.h"
+#include <math.h>
 
 /* Description = exp(x)
 	Code = 0     (this is the code that will be passed to Integrate to identify this function)
 	k=1 (uni-variate)
 	params = []  (no parameters)
 */
-__device__ float F0(const float *x, const float *params)
+double F0(const double *x, const double *params)
 { return exp(x[0]); }
+
+double myfunc(const double *x, const double *params)
+{ return x[0] + x[1]; }
 
 /* Name = sin(o1+x*y)*exp(o2+x)
 	Code = 1
 	k=2 (bi-variate)
 	params = [o1,o2]  (2 parameters)
 */
-__device__ float F1(const float *x, const float *params)
+double F1(const double *x, const double *params)
 {
 	return sin(params[0] + x[0]*x[1]) * exp(params[1]+x[0]);
 }
@@ -26,7 +29,7 @@ __device__ float F1(const float *x, const float *params)
 	k=3 (tri-variate)
 	params = []  (no parameters)
 */
-__device__ float F2(const float *x, const float *params)
+double F2(const double *x, const double *params)
 {
 	return round(exp(-x[0]))-round(exp(x[1]))*sin(x[2]);
 }
@@ -36,7 +39,7 @@ __device__ float F2(const float *x, const float *params)
 	k=3 (tri-variate)
 	params = [norm_lev]  (1 parameter)
 */
-__device__ float F3(const float *x, const float *params)
+double F3(const double *x, const double *params)
 {
 	// Perform a vector norm of a specific power, e.g. if params[0]==2 then it is the euclidian norm
 	float v=pow(x[0],params[0]) + pow(x[1],params[0]) + pow(x[2],params[0]);
@@ -56,7 +59,7 @@ __device__ float F3(const float *x, const float *params)
 	params. Don't worry too much about the details of the
 	matrix, it isn't relative to making it go fast.
 */
-__device__ float F4(const float *x, const float *params)
+double F4(const double *x, const double *params)
 {
 	// We need to calculate scale*exp(-x'*\Sigma^{-1}*x/2),
 	// where \Sigma^{-1} is a 3x3 matrix.
@@ -76,7 +79,7 @@ __device__ float F4(const float *x, const float *params)
 	k=3 (tri-variate)
 	params= [] (no parameters)
 */
-__device__ float F5(const float *x, const float *params)
+double F5(const double *x, const double *params)
 {
 	return powf(powf(sinf( pow(x[0], x[1]) ), 2), x[2]);
 }
@@ -86,7 +89,7 @@ __device__ float F5(const float *x, const float *params)
 	k=3 (tri-variate)
 	params= [radius,width]
 */
-__device__ float F6(const float *x, const float *params)
+double F6(const double *x, const double *params)
 {
 	float a=powf(powf(x[0],2)+powf(x[1],2)+powf(x[2],2),0.5); // distance from origin
 	float d=(a-params[0]);	// How far from surface of sphere
@@ -99,7 +102,5 @@ __device__ float F6(const float *x, const float *params)
 	}
 }
 
-__device__ float myfunc(const float*x, const float * params) {
-	return x[0]+x[1];
-}
+
 #endif

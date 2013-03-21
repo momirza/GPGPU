@@ -87,6 +87,18 @@ Rectangles
 Error estimation approach
 \end_layout
 
+\begin_layout Standard
+PHASE1 of the algorithm has the adaptive nature of eliminating all the regions
+ where the integrand is well-behaved(satisfies the error criterion) and
+ at the same time refining the resolution in the regions which require further
+ application of integration rules due to complicated and sometimes very
+ poorly behaved integrand.
+ Using such hierarchical subdivision guarantees the maximum utilization
+ of GPU and subsequently improves the performance of the integral computation.
+ Number of iterations of PHASE1 is decided based on the fraction of input
+ intervals that remain active after an iteration of PHASE1.
+\end_layout
+
 \begin_layout Itemize
 Adaptive Quadrature.
 \end_layout
@@ -213,6 +225,10 @@ GPU Optimisations
 
 \begin_layout Itemize
 Use shared memory instead of global memory when iterating over parameters.
+\end_layout
+
+\begin_layout Itemize
+maximise to maximum warp size
 \end_layout
 
 \begin_layout Section*

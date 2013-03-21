@@ -11,16 +11,16 @@
 double IntegrateExample(
   int functionCode,
   int n,	// How many points on each dimension
-  const float *a, // An array of k lower bounds
-  const float *b, // An array of k upper bounds
-  const float *params // Parameters to function
+  const double *a, // An array of k lower bounds
+  const double *b, // An array of k upper bounds
+  const double *params // Parameters to function
 ){
 	int k=-1, total=-1, i0, i1, i2, j;
-	// Accumulate in double, as it avoids floating-point errors when adding large
+	// Accumulate in double, as it avoids doubleing-point errors when adding large
 	// numbers of values together. Note that using double in a GPU has implications,
-	// as some GPUs cannot do doubles, and on others they are much slower than floats
+	// as some GPUs cannot do doubles, and on others they are much slower than doubles
 	double acc=0;	
-	float *x=NULL;
+	double *x=NULL;
 	int n0=n, n1=n, n2=n;	// By default use n points in each dimension
 	
 	switch(functionCode){
@@ -31,6 +31,7 @@ double IntegrateExample(
 		case 4:	k=3;	break;
 		case 5:	k=3;	break;
 		case 6:	k=3;	break;
+		case 9:	k=2;	break;
 		default:
 			fprintf(stderr, "Invalid function code.");
 			exit(1);
@@ -44,7 +45,7 @@ double IntegrateExample(
 		n1=1;
 	}
 	
-	x=(float *)malloc(sizeof(float)*k);
+	x=(double *)malloc(sizeof(double)*k);
 
 	// Loop over highest dimension on outside, as it might be collapsed to zero
 	for(i2=0;i2<n2;i2++){
@@ -71,6 +72,7 @@ double IntegrateExample(
 				case 4:	acc+=F4(x,params);	break;
 				case 5:	acc+=F5(x,params);	break;
 				case 6:	acc+=F6(x,params);	break;
+				case 9:	acc+=myfunc(x,params);	break;
 				}
 			}
 		}
@@ -88,8 +90,8 @@ double IntegrateExample(
 void Test0()
 {
 	double exact=(exp(1)-1);	// Exact result
-	float a[1]={0};
-	float b[1]={1};
+	double a[1]={0};
+	double b[1]={1};
 	int n;
 	
 	for(n=2;n<=512;n*=2){		
@@ -104,12 +106,31 @@ void Test0()
 	}
 }
 
+void mytest()
+{
+	double exact=8;	// Exact result
+	double a[2]={0, 0};
+	double b[2]={2, 2};
+	int n;
+	
+	for(n=2;n<=512;n*=2){		
+		double res=IntegrateExample(
+		  9, // functionCode,
+		  n,	// How many points on each dimension
+		  a, // An array of k lower bounds
+		  b, // An array of k upper bounds
+		  NULL // Parameters to function (no parameters for this function)
+		);
+		fprintf(stderr, "mytest, n=%d, value=%lf, error=%lg\n", n, res, res-exact);
+	}
+}
+
 void Test1()
 {
 	double exact=1.95683793560212f;	// Correct to about 10 digits
-	float a[2]={0,0};
-	float b[2]={1,1};
-	float params[2]={0.5,0.5};
+	double a[2]={0,0};
+	double b[2]={1,1};
+	double params[2]={0.5,0.5};
 	int n;
 	
 	for(n=2;n<=1024;n*=2){		
@@ -127,8 +148,8 @@ void Test1()
 void Test2()
 {
 	double exact=9.48557252267795;	// Correct to about 6 digits
-	float a[3]={-1,-1,-1};
-	float b[3]={1,1,1};
+	double a[3]={-1,-1,-1};
+	double b[3]={1,1,1};
 	int n;
 	
 	for(n=2;n<=256;n*=2){		
@@ -146,9 +167,9 @@ void Test2()
 void Test3()
 {
 	double exact=-7.18387139942142f;	// Correct to about 6 digits
-	float a[3]={0,0,0};
-	float b[3]={5,5,5};
-	float params[1]={2};
+	double a[3]={0,0,0};
+	double b[3]={5,5,5};
+	double params[1]={2};
 	int n;
 	
 	for(n=2;n<=256;n*=2){		
@@ -166,12 +187,12 @@ void Test3()
 void Test4()
 {
 	double exact=0.677779532970409f;	// Correct to about 8 digits
-	float a[3]={-16,-16,-16};	// We're going to cheat, and assume -16=-infinity.
-	float b[3]={1,1,1};
+	double a[3]={-16,-16,-16};	// We're going to cheat, and assume -16=-infinity.
+	double b[3]={1,1,1};
 	// We're going to use the covariance matrix with ones on the diagonal, and
 	// 0.5 off the diagonal.
-	const float PI=3.1415926535897932384626433832795f;
-	float params[10]={
+	const double PI=3.1415926535897932384626433832795f;
+	double params[10]={
 		1.5, -0.5, -0.5,
 		-0.5, 1.5, -0.5,
 		-0.5, -0.5, 1.5,
@@ -194,8 +215,8 @@ void Test4()
 void Test5()
 {
 	double exact=13.4249394627056;	// Correct to about 6 digits
-	float a[3]={0,0,0};
-	float b[3]={3,3,3};
+	double a[3]={0,0,0};
+	double b[3]={3,3,3};
 	int n;
 	
 	for(n=2;n<=512;n*=2){		
@@ -215,9 +236,9 @@ void Test6()
 	// Integrate over a shell with radius 3 and width 0.02
 	//  = volume of a sphere of 3.01 minus a sphere of 2.99
 	double exact=   2.261955088165;
-	float a[3]={-4,-4,-4};
-	float b[3]={4,4,4};
-	float params[2]={3,0.01};
+	double a[3]={-4,-4,-4};
+	double b[3]={4,4,4};
+	double params[2]={3,0.01};
 	int n;
 	
 	for(n=2;n<=2048;n*=2){		
@@ -234,6 +255,7 @@ void Test6()
 
 int main(int argc, char *argv[])
 {
+	mytest();
 	Test0();
 	Test1();
 	Test2();
