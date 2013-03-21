@@ -98,6 +98,7 @@ __global__ void func_kernel3dF6(float * dy, float* a, float* base, float * param
         uint32_t idz = blockIdx.z * blockDim.z + threadIdx.z;
         uint32_t offset = idx + (idy + (blockDim.x * idz * gridDim.x))  * blockDim.x * gridDim.x;
 //      printf("%d, %d, %d, %d\n", idx, idy, idz, offset);
+//	printf("%d, %d, %d, %d, %d\n", idx, idy, idz, offset, n);
         // ensure we are within bounds
 
         float x[3] = {a[0] + base[0] * (0.5f + idx), a[1] + base[1] * (0.5f + idy), a[2] + base[2] * (0.5f + idz)};
@@ -222,7 +223,7 @@ double Integrate(
                 else if (functionCode==5)
                     func_kernel3dF5<<<dimGrid, dimBlock>>>(dy, da, dbase, dparams, n);
                 else if (functionCode==6)
-                     func_kernel3dF5<<<dimGrid, dimBlock>>>(dy, da, dbase, dparams, n); 
+                     func_kernel3dF6<<<dimGrid, dimBlock>>>(dy, da, dbase, dparams, n); 
                 else {
                     fprintf(stderr, "Invalid function code.");
 		}
