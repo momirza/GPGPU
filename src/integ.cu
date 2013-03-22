@@ -114,12 +114,12 @@ __global__ void func_kernel3dF9(float * dy, float* a, float* base, float * param
         uint32_t idz = blockIdx.z * blockDim.z + threadIdx.z;
         uint32_t offset = idx + (idy + (blockDim.x * idz * gridDim.x))  * blockDim.x * gridDim.x;
 //      printf("%d, %d, %d, %d\n", idx, idy, idz, offset);
-        printf("%d, %d, %d, %d, %d\n", idx, idy, idz, offset, n);
+//        printf("%d, %d, %d, %d, %d\n", idx, idy, idz, offset, n);
         // ensure we are within bounds
 
         float x[3] = {a[0] + base[0] * (0.5f + idx), a[1] + base[1] * (0.5f + idy), a[2] + base[2] * (0.5f + idz)};
-	printf("%0.10f, %0.10f, %0.10f\n", x[0], x[1],x[2]);
-	printf("%0.10f, %0.10f, %0.10f\n", a[0], a[1],a[2]);
+//	printf("%0.10f, %0.10f, %0.10f\n", x[0], x[1],x[2]);
+//	printf("%0.10f, %0.10f, %0.10f\n", a[0], a[1],a[2]);
         if (idx< n) {
                 dy[offset] = myfunc(x, params) ;
         }
@@ -141,7 +141,7 @@ double Integrate(
 	size_t freeMem = 0;
 	size_t totalMem = 0;
 	cudaMemGetInfo(&freeMem, &totalMem);  
-	printf("Memory avaliable: Free: %lu, Total: %lu\n",freeMem, totalMem);
+//	printf("Memory avaliable: Free: %lu, Total: %lu\n",freeMem, totalMem);
 	const int nsize = 10000000;
 	const int sz = sizeof(float) * nsize;
 	float *devicemem;
@@ -149,16 +149,16 @@ double Integrate(
 
 	cudaMemset(devicemem, 0, sz); // zeros all the bytes in devicemem
 	int n0=n, n1=n, n2=n;	// By default use n points in each dimension
-	int k;	
+	int k; int p = 0 ;	
 	switch(functionCode){
-		case 0:	k=1;	break;
-		case 1:	k=2;	break;
-		case 2:	k=3;	break;
-		case 3:	k=3;	break;
-		case 4:	k=3;	break;
-		case 5:	k=3;	break;
-		case 6:	k=3;	break;
-		case 9: k=3; 	break;
+		case 0:	k=1;	p=0;	break;
+		case 1:	k=2;	p=2;	break;
+		case 2:	k=3;	p=0;	break;
+		case 3:	k=3;	p=1;	break;
+		case 4:	k=3;	p=10;	break;
+		case 5:	k=3;	p=0;	break;
+		case 6:	k=3;	p=2;	break;
+		case 9: k=3; 	p=0;	break;
 		default:
 			fprintf(stderr, "Invalid function code.");
 			exit(1);
@@ -177,7 +177,7 @@ double Integrate(
 	float *y = (float*)malloc(bytes);
 	
 	float base[3] = {(b[0] - a[0])/n, (b[1] - a[1])/n, (b[2] - a[2])/n};
-	printf("base: %0.10f, %0.10f, %0.10f\n", base[0], base[1], base[2]);
+//	printf("base: %0.10f, %0.10f, %0.10f\n", base[0], base[1], base[2]);
 	// allocate memory for each vector on GPU
 	float * dy;
 	float * dbase;
@@ -186,14 +186,14 @@ double Integrate(
 //	int  * dn;
 	
 	cudaMalloc(&dy, bytes);
-	cudaMalloc(&dbase, sizeof(base));
+	cudaMalloc(&dbase, 3*sizeof(float));
 //	cudaMalloc((void**)&dn, sizeof(int));	
 	cudaMalloc(&da, k*sizeof(int));
-	cudaMalloc(&dparams, sizeof(params));
+	cudaMalloc(&dparams, p*sizeof(float));
 
-	cudaMemcpy(dbase, base, sizeof(base), cudaMemcpyHostToDevice);
+	cudaMemcpy(dbase, base, 3*sizeof(float), cudaMemcpyHostToDevice);
 	cudaMemcpy(da, a, k*sizeof(int), cudaMemcpyHostToDevice);
-	cudaMemcpy(dparams, params, sizeof(params), cudaMemcpyHostToDevice);
+	cudaMemcpy(dparams, params, p*sizeof(float), cudaMemcpyHostToDevice);
 //	cudaMemcpy(dn,&n,sizeof(int), cudaMemcpyHostToDevice);
 
 	//kernel execute
@@ -312,7 +312,7 @@ void test3(void) {
 	float a[3]={0,0,0};
 	float b[3]={5,5,5};
 	float params[1]={2};
-	int n = 256;	
+	int n = 512;	
 	float error;
 	Integrate(3, a, b, n, params, &error); 	
 }
@@ -330,7 +330,7 @@ void test4(void) {
 		-0.5, -0.5, 1.5,
 		pow(2*PI,-3.0/2.0)*pow(0.5,-0.5) // This is the scale factor
 	};
-	int n = 8;
+	int n = 512;
 	float error;
         Integrate(4, a, b, n, params, &error);
 }
@@ -348,20 +348,20 @@ void test6(void) {
 	float a[3]={-4,-4,-4};
 	float b[3]={4,4,4};
 	float params[2]={3,0.01};
-        int n = 256;
+        int n = 512;
         float error;
         Integrate(6, a, b, n, params, &error);
 }
 
 int main( int argc, char* argv[]) {
-//    test0(); // works
-//   test1();  // works
-//    test3(); // works
+	test0(); // works
+	test1(); // works
+	test2(); // works
+	test3(); // works
+	test4(); // works
+	test5(); // works
+	test6(); // works
 	testmyfunc();
-    test4(); //doesn't work
-    test2(); //works
-//    test5(); // works
-    test6(); // works
 }
 
 
