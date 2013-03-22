@@ -115,10 +115,10 @@ Other approaches investigated include Adaptive Quadrature.
  Where the solution adapts to the shape of the curve by eliminating all
  regions where the integrand is well behaved( ie, satisfies the error criterion).
  At the same time, the resolution of the regions that do not conform to
- the tolerence are and the sampling resolution is modified by splitting
- the range and performing the integration again.
+ the tolerence are eliminated and the sampling resolution is modified by
+ splitting the range and performing the integration again.
  This divide and conquer approach maximises the GPU's parallelism.
- This method was not implemented
+ This method was not implemented.
 \end_layout
 
 \begin_layout Section*
@@ -293,7 +293,7 @@ GPU Specifications
 
 \begin_layout Itemize
 Floating point operations were performed within the kernel to allow for
- a backwards compatibility
+ a backwards compatibility with older architectures
 \end_layout
 
 \begin_layout Subsubsection*
@@ -436,6 +436,8 @@ Starting at a low sampling rate reduces the chance of passing the tolerance
  We could agglomerate and create less threads in return for each thread
  performing a bigger chunk of computing power.
  This requires performance tuning for specific devices.
+ This agglomeration also reduces the memory overhead on the device as smaller
+ arrays for output need to be allocated.
 \end_layout
 
 \begin_layout Subsection*
@@ -445,7 +447,7 @@ Comparisons with Sequential
 \begin_layout Standard
 The sequential version was generally faster for large n, since the parallism
  capabilites of the GPU are maximised.
- For very small n, we are better of using a sequential version.
+ For very small n, we are better off using a sequential version.
  The following table shows a comparison between a slightly modified dumb_impl.c
  and integ.cu (this file was created for comparison and does not do error
  estimation, it simply calculates area for the given n).
