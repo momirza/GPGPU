@@ -141,6 +141,8 @@ double Integrate(
 {
     int i = 1; // multiplier
     *errorEstimate = 100; // set error to high value
+    double sum = 0;
+    double sum_temp = 0;
     while (*errorEstimate > eps) {
     	size_t freeMem = 0;
     	size_t totalMem = 0;
@@ -181,6 +183,7 @@ double Integrate(
     	size_t bytes_temp = (pow(2,k)*n0*n1*n2)*sizeof(float);
     		
         float *y = (float*)malloc(bytes);
+        float *y_temp = (float*)malloc(bytes_temp);
     	
         float base[3] = {(b[0] - a[0])/n, (b[1] - a[1])/n, (b[2] - a[2])/n};
     	float base_temp[3] = {(b[0] - a[0])/(n*2), (b[1] - a[1])/(n*2), (b[2] - a[2])/(n*2)};
@@ -223,8 +226,8 @@ double Integrate(
             func_kernel1d<<<dimGrid, dimBlock>>>(dy, da, dbase, dparams, n);
             
     		int gridSize_temp = (int) ceil((float)n*2.0/blockSize);
-    		dim3 dimGrid(gridSize_temp);
-    		func_kernel1d<<<dimGrid, dimBlock>>>(dy_temp, da, dbase_temp, dparams, n_temp);
+    		dim3 dimGrid_temp(gridSize_temp);
+    		func_kernel1d<<<dimGrid_temp, dimBlock>>>(dy_temp, da, dbase_temp, dparams, 2*n);
     	}
     	else if (k==2) {
                     // number of threads in each thread block
@@ -237,9 +240,9 @@ double Integrate(
                     dim3 dimGrid(gridSize, gridSize);
 
                     func_kernel2d<<<dimGrid, dimBlock>>>(dy, da, dbase, dparams, n);    
-                    int gridSize_temp = (int) ceil(2f*(float)n/blockSize);
-                    dim3 dimGrid(gridSize_temp);
-                    func_kernel2d<<<dimGrid, dimBlock>>>(dy_temp, da, dbase_temp, dparams, n_temp);	
+                    int gridSize_temp = (int) ceil((float)n*2.0/blockSize);
+                    dim3 dimGrid_temp(gridSize_temp, gridSize_temp);
+                    func_kernel2d<<<dimGrid_temp, dimBlock>>>(dy_temp, da, dbase_temp, dparams, 2*n);	
 
     	}
     	else { 
@@ -251,36 +254,32 @@ double Integrate(
                     // number of thread blocks in grid
                     int gridSize = (int) ceil((float)n/blockSize);
                     dim3 dimGrid(gridSize, gridSize, gridSize);
-                    if (functionCode==2)
+                    int gridSize_temp = (int) ceil((float)n*2.0/blockSize);
+                    dim3 dimGrid_temp(gridSize_temp, gridSize_temp, gridSize_temp);
+                    if (functionCode==2) {
                         func_kernel3dF2<<<dimGrid, dimBlock>>>(dy, da, dbase, dparams, n);
-                        int gridSize_temp = (int) ceil(2f*(float)n/blockSize);
-                        dim3 dimGrid(gridSize_temp);
-                        func_kernel3dF2<<<dimGrid, dimBlock>>>(dy_temp, da, dbase_temp, dparams, n_temp);
-                    else if (functionCode==3)
+                        func_kernel3dF2<<<dimGrid_temp, dimBlock>>>(dy_temp, da, dbase_temp, dparams, 2*n);
+                    }
+                    else if (functionCode==3) {
                         func_kernel3dF3<<<dimGrid, dimBlock>>>(dy, da, dbase, dparams, n);
-                        int gridSize_temp = (int) ceil(2f*(float)n/blockSize);
-                        dim3 dimGrid(gridSize_temp);
-                        func_kernel3dF3<<<dimGrid, dimBlock>>>(dy_temp, da, dbase_temp, dparams, n_temp);
-                    else if (functionCode==4)
+                        func_kernel3dF3<<<dimGrid_temp, dimBlock>>>(dy_temp, da, dbase_temp, dparams, 2*n);
+                    }
+                    else if (functionCode==4) {
                         func_kernel3dF4<<<dimGrid, dimBlock>>>(dy, da, dbase, dparams, n);
-                        int gridSize_temp = (int) ceil(2f*(float)n/blockSize);
-                        dim3 dimGrid(gridSize_temp);
-                        func_kernel3dF4<<<dimGrid, dimBlock>>>(dy_temp, da, dbase_temp, dparams, n_temp);
-                    else if (functionCode==5)
+                        func_kernel3dF4<<<dimGrid_temp, dimBlock>>>(dy_temp, da, dbase_temp, dparams, 2*n);
+                    }
+                    else if (functionCode==5) {
                         func_kernel3dF5<<<dimGrid, dimBlock>>>(dy, da, dbase, dparams, n);
-                        int gridSize_temp = (int) ceil(2f*(float)n/blockSize);
-                        dim3 dimGrid(gridSize_temp);
-                        func_kernel3dF5<<<dimGrid, dimBlock>>>(dy_temp, da, dbase_temp, dparams, n_temp);
-                    else if (functionCode==6)
+                        func_kernel3dF5<<<dimGrid_temp, dimBlock>>>(dy_temp, da, dbase_temp, dparams, 2*n);
+                    }
+                    else if (functionCode==6) {
                         func_kernel3dF6<<<dimGrid, dimBlock>>>(dy, da, dbase, dparams, n); 
-                        int gridSize_temp = (int) ceil(2f*(float)n/blockSize);
-                        dim3 dimGrid(gridSize_temp);
-                        func_kernel3dF6<<<dimGrid, dimBlock>>>(dy_temp, da, dbase_temp, dparams, n_temp); 
-                    else if (functionCode==9)
+                        func_kernel3dF6<<<dimGrid_temp, dimBlock>>>(dy_temp, da, dbase_temp, dparams, 2*n); 
+                    }
+                    else if (functionCode==9) {
                         func_kernel3dF9<<<dimGrid, dimBlock>>>(dy, da, dbase, dparams, n); 
-                        int gridSize_temp = (int) ceil(2f*(float)n/blockSize);
-                        dim3 dimGrid(gridSize_temp);
-                        func_kernel3dF9<<<dimGrid, dimBlock>>>(dy_temp, da, dbase_temp, dparams, n_temp); 
+                        func_kernel3dF9<<<dimGrid_temp, dimBlock>>>(dy_temp, da, dbase_temp, dparams, 2*n); 
+                    }
                     else {
                         fprintf(stderr, "Invalid function code.");
     		}
@@ -291,16 +290,22 @@ double Integrate(
         cudaMemcpy(y, dy, bytes, cudaMemcpyDeviceToHost);
         cudaMemcpy(y_temp, dy_temp, bytes_temp, cudaMemcpyDeviceToHost);
     	
-        double sum = 0;
-    	double sum_temp = 0;
+        sum = 0;
+    	sum_temp = 0;
     	for(uint32_t i=0; i<n0*n1*n2; i++) {
             sum += y[i];
-    		sum_temp += y_temp[i];
     	}
-    	for(int j=0; j<k; j++)
+        for(uint32_t i=0; i<pow(2,k)*n0*n1*n2; i++) {
+            sum_temp += y_temp[i];
+        }
+    	for(int j=0; j<k; j++) {
             sum *= base[j];
     		sum_temp *= base_temp[j];
-    //	printf("final result: %0.10f\n", sum);
+        }
+        printf("len: %0.10f\n", pow(2,k)*n0*n1*n2);
+        printf("sum: %0.10f\n", sum);
+    	printf("sum_temp: %0.10f\n", sum_temp);
+
 
         cudaFree(dy);
     	cudaFree(dy_temp);
@@ -310,11 +315,11 @@ double Integrate(
     	cudaFree(dparams);
 
     //	cudaFree(dn);
-        free(y)
-        free(ytemp);
+        free(y);
+        free(y_temp);
     	cudaMemset(devicemem, 0, sz); // zeros all the bytes in devicemem
         *errorEstimate = fabs(sum - sum_temp);
-
+        i += 1;
     }
 	return sum;
 }
@@ -338,18 +343,19 @@ void testmyfunc(void) {
 void test0(void) {
         float a[1]={0};
         float b[1]={1};
-        float error;
+        float  error;
         // for (int n = 32; n<=1024; n*=2) {
 		double time_spent;
 		clock_t begin, end;
 		begin = clock();
-        float eps = 1;
-		Integrate(0, a, b, eps, NULL, &error);
+        float eps = 0.01;
+		double result = Integrate(0, a, b, eps, NULL, &error);
 		end = clock();
 		time_spent = (double)(end - begin) / CLOCKS_PER_SEC;
-		printf("Error: %0.10f\n", *error);
-        printf("0 %d %0.10f\n", n, time_spent);
-	}
+        printf("Error: %0.10f\n", error);
+		printf("Result: %0.10f\n", result);
+        printf("0 %0.10f\n", time_spent);
+
 }
 
 void test1(void) {
@@ -357,17 +363,17 @@ void test1(void) {
 	float b[2]={1,1};
 	float params[2]={0.5,0.5};
 	float error;
-//	int n = 128; 
+    float eps = 2; 
 
-        for (int n = 32; n<=1024; n*=2) {
-                double time_spent;
-                clock_t begin, end;
-                begin = clock();
-		Integrate(1, a, b, n, params, &error); 	
-                end = clock();
-                time_spent = (double)(end - begin) / CLOCKS_PER_SEC;
-                printf("1 %d %0.10f\n", n, time_spent);
-        }
+    double time_spent;
+    clock_t begin, end;
+    begin = clock();
+	double result = Integrate(1, a, b, eps, params, &error); 	
+    end = clock();
+    time_spent = (double)(end - begin) / CLOCKS_PER_SEC;
+    printf("Error: %0.10f\n", error);
+    printf("Result: %0.10f\n", result);
+    printf("1 %0.10f\n", time_spent);
 
 }
 
@@ -375,17 +381,17 @@ void test2(void) {
 	float exact=9.48557252267795;	// Correct to about 6 digits
 	float a[3]={-1,-1,-1};
 	float b[3]={1,1,1};
-	int n = 512;	
+	float eps = 0.01;	
 	float error;
-        for (int n = 8; n<=512; n*=2) {
-                double time_spent;
-                clock_t begin, end;
-                begin = clock();
-		Integrate(2, a, b, n, NULL, &error); 	
-                end = clock();
-                time_spent = (double)(end - begin) / CLOCKS_PER_SEC;
-                printf("2 %d %0.10f\n", n, time_spent);
-        }
+    double time_spent;
+    clock_t begin, end;
+    begin = clock();
+    double result = Integrate(2, a, b, eps, NULL, &error); 	
+    end = clock();
+    time_spent = (double)(end - begin) / CLOCKS_PER_SEC;
+    printf("Error: %0.10f\n", error);
+    printf("Result: %0.10f\n", result);
+    printf("2 %0.10f\n", time_spent);
 }
 
 void test3(void) {
@@ -393,17 +399,17 @@ void test3(void) {
 	float a[3]={0,0,0};
 	float b[3]={5,5,5};
 	float params[1]={2};
-	int n = 512;	
+	float eps = 0.01;
 	float error;
-        for (int n = 8; n<=512; n*=2) {
-                double time_spent;
-                clock_t begin, end;
-                begin = clock();
-		Integrate(3, a, b, n, params, &error); 	
-                end = clock();
-                time_spent = (double)(end - begin) / CLOCKS_PER_SEC;
-                printf("3 %d %0.10f\n", n, time_spent);
-        }
+    double time_spent;
+    clock_t begin, end;
+    begin = clock();
+	double result = Integrate(3, a, b, eps, params, &error); 	
+    end = clock();
+    time_spent = (double)(end - begin) / CLOCKS_PER_SEC;
+    printf("Error: %0.10f\n", error);
+    printf("Result: %0.10f\n", result);
+    printf("3 %0.10f\n", time_spent);
 
 }
 
@@ -420,17 +426,15 @@ void test4(void) {
 		-0.5, -0.5, 1.5,
 		pow(2*PI,-3.0/2.0)*pow(0.5,-0.5) // This is the scale factor
 	};
-//	int n = 512;
-	float error;
-        for (int n = 8; n<=512; n*=2) {
-                double time_spent;
-                clock_t begin, end;
-                begin = clock();
-		Integrate(4, a, b, n, params, &error);
-                end = clock();
-                time_spent = (double)(end - begin) / CLOCKS_PER_SEC;
-                printf("4 %d %0.10f\n", n, time_spent);
-        }
+    float eps = 0.01
+    float error;
+    double time_spent;
+    clock_t begin, end;
+    begin = clock();
+	Integrate(4, a, b, float, params, &error);
+    end = clock();
+    time_spent = (double)(end - begin) / CLOCKS_PER_SEC;
+    printf("4 %d %0.10f\n", n, time_spent);
 
 }
 void test5(void) {
@@ -471,13 +475,14 @@ void test6(void) {
 
 int main( int argc, char* argv[]) {
     // testmyfunc();
-    test0(); // works
-//     test1(); // works
-//     test2(); // works
-//     test3(); // works
+    // test0(); // works
+    test1(); // works
+    // test2(); // works
+    // test3(); // works
 //     test4(); // works
 //     test5(); // works
 //     test6(); // works
-// }
+    return 0;
+}
 
 
