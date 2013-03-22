@@ -422,14 +422,14 @@ void test6(void) {
 }
 
 int main( int argc, char* argv[]) {
-	test0(); // works
-	test1(); // works
-	test2(); // works
-	test3(); // works
-	test4(); // works
-	test5(); // works
-	test6(); // works
-//	testmyfunc();
+    testmyfunc();
+    test0(); // works
+    test1(); // works
+    test2(); // works
+    test3(); // works
+    test4(); // works
+    test5(); // works
+    test6(); // works
 }
 
 

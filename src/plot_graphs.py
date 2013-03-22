@@ -8,10 +8,7 @@ import numpy as np
 from scipy import interpolate
 import sys
 
-
-
-
-RUNS = 2
+RUNS = 10
 
 def dump_csvs(times):
     """ takes in data as list and generates csv """
@@ -110,11 +107,12 @@ if __name__ == "__main__":
     # pyplot.plot(nF0new, F0_i, nF1new, F1_i, nF2new, F2_i, nF3new, F3_i, nF4new, F4_i, nF5new, F5_i, nF6new, F6_i, linestyle='--', lw= 1.5)
     pyplot.plot(nF0, F0, nF1, F1, nF2, F2, nF3, F3, nF4, F4, nF5, F5, nF6, F6, marker='o',ls='--')
     # pyplot.plot(nGF0new, GF0_i, nGF1new, GF1_i, nGF2new, GF2_i, nGF3new, GF3_i, nGF4new, GF4_i, nGF5new, GF5_i, nGF6new, GF6_i, linestyle='-', lw= 1.5)
-    pyplot.plot(nGF0, GF0, nGF1, GF1, nGF2, GF2, nGF3, GF3, nGF4, GF4, nGF5, GF5, nGF6, GF6, marker='^',ls='--')
+    pyplot.plot(nGF0, GF0, nGF1, GF1, nGF2, GF2, nGF3, GF3, nGF4, GF4, nGF5, GF5, nGF6, GF6, marker='^',ls='-')
     pyplot.grid(which='major', axis='both', linestyle='-',color='#C0C0C0', alpha=0.5)
     pyplot.grid(which='minor', axis='y', linestyle='--',color='#C0C0C0', alpha=0.5)
     pyplot.xlabel("n")
-    pyplot.legend(('F0','F1', 'F2', 'F3', 'F4', 'F5', 'F6'), loc=2)
+    pyplot.legend(('F0','F1', 'F2', 'F3', 'F4', 'F5', 'F6'), loc=1)
+    pyplot.xlim(xmax=1500)
     pyplot.ylabel("Time log10(s)")
     pyplot.title("Execution Times - Serial and parallel (%d simulation runs) " % RUNS)
     pyplot.savefig('serial.pdf')
