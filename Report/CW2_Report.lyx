@@ -25,9 +25,10 @@
 \bibtex_command default
 \index_command default
 \paperfontsize default
+\spacing single
 \use_hyperref false
 \papersize default
-\use_geometry false
+\use_geometry true
 \use_amsmath 1
 \use_esint 1
 \use_mhchem 1
@@ -42,6 +43,10 @@
 \shortcut idx
 \color #008000
 \end_index
+\leftmargin 2cm
+\topmargin 2cm
+\rightmargin 2cm
+\bottommargin 2cm
 \secnumdepth 3
 \tocdepth 3
 \paragraph_separation indent
@@ -87,12 +92,85 @@ Rectangles
 Error estimation approach
 \end_layout
 
+\begin_layout Standard
+PHASE1 of the algorithm has the adaptive nature of eliminating all the regions
+ where the integrand is well-behaved(satisfies the error criterion) and
+ at the same time refining the resolution in the regions which require further
+ application of integration rules due to complicated and sometimes very
+ poorly behaved integrand.
+ Using such hierarchical subdivision guarantees the maximum utilization
+ of GPU and subsequently improves the performance of the integral computation.
+ Number of iterations of PHASE1 is decided based on the fraction of input
+ intervals that remain active after an iteration of PHASE1.
+\end_layout
+
 \begin_layout Itemize
 Adaptive Quadrature.
 \end_layout
 
 \begin_layout Section*
 Pseudo-code
+\end_layout
+
+\begin_layout Standard
+
+\emph on
+Discuss block size and grid size
+\end_layout
+
+\begin_layout Standard
+\begin_inset Float figure
+wide false
+sideways false
+status open
+
+\begin_layout Plain Layout
+
+\end_layout
+
+\begin_layout Plain Layout
+\begin_inset Caption
+
+\begin_layout Plain Layout
+Grid and Block Size Architecture for CUDA Devices
+\end_layout
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Plain Layout
+
+\end_layout
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Standard
+Since the GPU only allows a maximum of 1024 threads per block the following
+ block size configurations were chosen:
+\end_layout
+
+\begin_layout Itemize
+1D: A block size of 32 x 1 x 1 was used
+\end_layout
+
+\begin_layout Itemize
+2D: A block size of 32 x 32 x 1 was used
+\end_layout
+
+\begin_layout Itemize
+3D: A block size of 8 x 8 x was used
+\end_layout
+
+\begin_layout Standard
+When the value of n is larger than the block size, additional blocks are
+ launched within the kernal grid.
+ This is reffered to as the grid size of the grid.
+ 
 \end_layout
 
 \begin_layout Standard
@@ -108,7 +186,12 @@ status open
 
 \begin_layout Plain Layout
 
-FUNCTION integrate(grain_size):
+__DEVICE_SIDE___
+\end_layout
+
+\begin_layout Plain Layout
+
+KERNEL integrate_FX:
 \end_layout
 
 \begin_layout Plain Layout
@@ -118,12 +201,7 @@ FUNCTION integrate(grain_size):
 
 \begin_layout Plain Layout
 
-	Copy from global memery to local memory
-\end_layout
-
-\begin_layout Plain Layout
-
-	for loop for each dimension
+	determine x array corresponding to this thread
 \end_layout
 
 \begin_layout Plain Layout
@@ -142,7 +220,12 @@ FUNCTION integrate(grain_size):
 
 \begin_layout Plain Layout
 
-	__HOST_CODE__
+__HOST_SIDE__
+\end_layout
+
+\begin_layout Plain Layout
+
+FUNCTION integrate(grain_size):
 \end_layout
 
 \begin_layout Plain Layout
@@ -157,12 +240,17 @@ FUNCTION integrate(grain_size):
 
 \begin_layout Plain Layout
 
+	Copy from host memery to device memory
+\end_layout
+
+\begin_layout Plain Layout
+
 	if not |actual_area - area| < tau:
 \end_layout
 
 \begin_layout Plain Layout
 
-		integrate(grain_size/2)
+		integrate_FX(grain_size/2) // FX determined by function to be integrated
 \end_layout
 
 \end_inset
@@ -208,11 +296,63 @@ GPU
 \end_layout
 
 \begin_layout Subsubsection*
+GPU Specifications
+\end_layout
+
+\begin_layout Itemize
+32 thread warp size
+\end_layout
+
+\begin_layout Itemize
+1024 x 1024 x 64 with max number of threads per block of 1024
+\end_layout
+
+\begin_layout Itemize
+Floating point operations were performed within the kernel to allow for
+ a backwards compatibility
+\end_layout
+
+\begin_layout Subsubsection*
 GPU Optimisations
 \end_layout
 
 \begin_layout Itemize
 Use shared memory instead of global memory when iterating over parameters.
+\end_layout
+
+\begin_layout Itemize
+maximise to maximum warp size
+\end_layout
+
+\begin_layout Itemize
+Make base variable part of shared memory to prevent calling to Global memory
+ every time.
+ This requires a 
+\series bold
+__syncthreads()
+\series default
+ so that all threads within the warp have this available??
+\end_layout
+
+\begin_layout Itemize
+Agglomerate the addition of the 32 threads within the kernel.
+ This allows us to reduce the time taken to sum over all threads sequentially
+ on the host side.
+ The sum loop is reduced by a factor of 32.
+\end_layout
+
+\begin_layout Itemize
+Initially, the function pointers were used to call the correct function
+ from within the kernel.
+ This approach was abandoned and a seperate kernel for each function was
+ used instead to allow for backwards compatibility.
+ 
+\begin_inset Newline newline
+\end_inset
+
+
+\emph on
+NB: Function pointers are not supported before CUDA Capability Version 2.0
 \end_layout
 
 \begin_layout Section*
