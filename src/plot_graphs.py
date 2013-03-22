@@ -25,6 +25,13 @@ def dump_csvs(times):
     for n, time in enumerate(times):
         writer.writerow([squares[n]] + time)
 
+def call_exec(file):
+	proc_list = []
+	get_times = lambda x: x.split()
+	for _ in xrange(RUNS):
+		proc = map(get_times, (Popen(['./test'] , stdout=PIPE).stdout.readlines()))
+	import pdb; pdb.set_trace()
+	pass
 
 if __name__ == "__main__":
     DATA_EXISTS = False if sys.argv[-1] == 'rerun' else True
