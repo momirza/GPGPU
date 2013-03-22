@@ -139,139 +139,183 @@ double Integrate(
     float *errorEstimate // Estimated error in integral
 ) 
 {
+    int i = 1; // multiplier
+    *errorEstimate = 100; // set error to high value
+    while (*errorEstimate > eps) {
+    	size_t freeMem = 0;
+    	size_t totalMem = 0;
+    	cudaMemGetInfo(&freeMem, &totalMem);  
+    //	printf("Memory avaliable: Free: %lu, Total: %lu\n",freeMem, totalMem);
+    	const int nsize = 10000000;
+    	const int sz = sizeof(float) * nsize;
+    	float *devicemem;
+    	cudaMalloc((void **)&devicemem, sz);
 
-	size_t freeMem = 0;
-	size_t totalMem = 0;
-	cudaMemGetInfo(&freeMem, &totalMem);  
-//	printf("Memory avaliable: Free: %lu, Total: %lu\n",freeMem, totalMem);
-	const int nsize = 10000000;
-	const int sz = sizeof(float) * nsize;
-	float *devicemem;
-	cudaMalloc((void **)&devicemem, sz);
+    	cudaMemset(devicemem, 0, sz); // zeros all the bytes in devicemem
+        int n;
+        int k; int p = 0 ;  
+        switch(functionCode){
+            case 0: k=1;    p=0;    n=32*i; break;
+            case 1: k=2;    p=2;    n=32*i;   break;
+            case 2: k=3;    p=0;    n=8*i;   break;
+            case 3: k=3;    p=1;    n=8*i;   break;
+            case 4: k=3;    p=10;    n=8*i;   break;
+            case 5: k=3;    p=0;    n=8*i;   break;
+            case 6: k=3;    p=2;    n=8*i;   break;
+            case 9: k=3;    p=0;    n=8*i;   break;
+            default:
+                fprintf(stderr, "Invalid function code.");
+                exit(1);
+        }
+        
+    	int n0=n, n1=n, n2=n;	// By default use n points in each dimension
+    	// Collapse any dimensions we don't use
+    	if(k<3){
+    		n2=1;
+    	}
+    	if(k<2){
+    		n1=1;
+    	}
+    	// size, in bytes, of each vector
+        size_t bytes = (n0*n1*n2)*sizeof(float);
+    	size_t bytes_temp = (pow(2,k)*n0*n1*n2)*sizeof(float);
+    		
+        float *y = (float*)malloc(bytes);
+    	
+        float base[3] = {(b[0] - a[0])/n, (b[1] - a[1])/n, (b[2] - a[2])/n};
+    	float base_temp[3] = {(b[0] - a[0])/(n*2), (b[1] - a[1])/(n*2), (b[2] - a[2])/(n*2)};
+    //	printf("base: %0.10f, %0.10f, %0.10f\n", base[0], base[1], base[2]);
+    	// allocate memory for each vector on GPU
+        float * dy;
+        float * dy_temp;
+        float * dbase;
+    	float * dbase_temp;
+    	float * da;
+    	float * dparams;
+    //	int  * dn;
+    	
+        cudaMalloc(&dy, bytes);
+        cudaMalloc(&dy_temp, bytes_temp);
+        cudaMalloc(&dbase, 3*sizeof(float));
+    	cudaMalloc(&dbase_temp, 3*sizeof(float));
+    //	cudaMalloc((void**)&dn, sizeof(int));	
+    	cudaMalloc(&da, k*sizeof(int));
+    	cudaMalloc(&dparams, p*sizeof(float));
 
-	cudaMemset(devicemem, 0, sz); // zeros all the bytes in devicemem
-    int n;
-	int n0=n, n1=n, n2=n;	// By default use n points in each dimension
-	int k; int p = 0 ;	
-	switch(functionCode){
-		case 0:	k=1;	p=0;    n=32;	break;
-		case 1:	k=2;	p=2;	n=32;   break;
-		case 2:	k=3;	p=0;	n=8;   break;
-		case 3:	k=3;	p=1;	n=8;   break;
-		case 4:	k=3;	p=10;	 n=8;   break;
-		case 5:	k=3;	p=0;	n=8;   break;
-		case 6:	k=3;	p=2;    n=8;   break;
-		case 9: k=3; 	p=0;    n=8;   break;
-		default:
-			fprintf(stderr, "Invalid function code.");
-			exit(1);
-	}
-	
-	// Collapse any dimensions we don't use
-	if(k<3){
-		n2=1;
-	}
-	if(k<2){
-		n1=1;
-	}
-	// size, in bytes, of each vector
-	size_t bytes = (n0*n1*n2)*sizeof(float);
-		
-	float *y = (float*)malloc(bytes);
-	
-	float base[3] = {(b[0] - a[0])/n, (b[1] - a[1])/n, (b[2] - a[2])/n};
-//	printf("base: %0.10f, %0.10f, %0.10f\n", base[0], base[1], base[2]);
-	// allocate memory for each vector on GPU
-	float * dy;
-	float * dbase;
-	float * da;
-	float * dparams;
-//	int  * dn;
-	
-	cudaMalloc(&dy, bytes);
-	cudaMalloc(&dbase, 3*sizeof(float));
-//	cudaMalloc((void**)&dn, sizeof(int));	
-	cudaMalloc(&da, k*sizeof(int));
-	cudaMalloc(&dparams, p*sizeof(float));
+        cudaMemcpy(dbase, base, 3*sizeof(float), cudaMemcpyHostToDevice);
+    	cudaMemcpy(dbase_temp, base_temp, 3*sizeof(float), cudaMemcpyHostToDevice);
+    	cudaMemcpy(da, a, k*sizeof(int), cudaMemcpyHostToDevice);
+    	cudaMemcpy(dparams, params, p*sizeof(float), cudaMemcpyHostToDevice);
+    //	cudaMemcpy(dn,&n,sizeof(int), cudaMemcpyHostToDevice);
 
-	cudaMemcpy(dbase, base, 3*sizeof(float), cudaMemcpyHostToDevice);
-	cudaMemcpy(da, a, k*sizeof(int), cudaMemcpyHostToDevice);
-	cudaMemcpy(dparams, params, p*sizeof(float), cudaMemcpyHostToDevice);
-//	cudaMemcpy(dn,&n,sizeof(int), cudaMemcpyHostToDevice);
+    	//kernel execute
+    	if (k==1) {
 
-	//kernel execute
-	if (k==1) {
+    //		printf("1D\n");
+    		// number of threads in each thread block
+    		int blockSize = 32;
+    		dim3 dimBlock(blockSize);
 
-//		printf("1D\n");
-		// number of threads in each thread block
-		int blockSize = 32;
-		dim3 dimBlock(blockSize);
+    		// number of thread blocks in grid
+            int gridSize = (int) ceil((float)n/blockSize);
+            dim3 dimGrid(gridSize);
 
-		// number of thread blocks in grid
-		int gridSize = (int) ceil((float)n/blockSize);
-		dim3 dimGrid(gridSize);
+            func_kernel1d<<<dimGrid, dimBlock>>>(dy, da, dbase, dparams, n);
+            
+    		int gridSize_temp = (int) ceil((float)n*2.0/blockSize);
+    		dim3 dimGrid(gridSize_temp);
+    		func_kernel1d<<<dimGrid, dimBlock>>>(dy_temp, da, dbase_temp, dparams, n_temp);
+    	}
+    	else if (k==2) {
+                    // number of threads in each thread block
+    //		printf("2D\n");
+                    int blockSize = 32;
+                    dim3 dimBlock(blockSize, blockSize);
 
-		func_kernel1d<<<dimGrid, dimBlock>>>(dy, da, dbase, dparams, n);
-	}
-	else if (k==2) {
-                // number of threads in each thread block
-//		printf("2D\n");
-                int blockSize = 32;
-                dim3 dimBlock(blockSize, blockSize);
+                    // number of thread blocks in grid
+                    int gridSize = (int) ceil((float)n/blockSize);
+                    dim3 dimGrid(gridSize, gridSize);
 
-                // number of thread blocks in grid
-                int gridSize = (int) ceil((float)n/blockSize);
-                dim3 dimGrid(gridSize, gridSize);
+                    func_kernel2d<<<dimGrid, dimBlock>>>(dy, da, dbase, dparams, n);    
+                    int gridSize_temp = (int) ceil(2f*(float)n/blockSize);
+                    dim3 dimGrid(gridSize_temp);
+                    func_kernel2d<<<dimGrid, dimBlock>>>(dy_temp, da, dbase_temp, dparams, n_temp);	
 
-                func_kernel2d<<<dimGrid, dimBlock>>>(dy, da, dbase, dparams, n);	
+    	}
+    	else { 
+                    // number of threads in each thread block
+    //		printf("3D\n");
+                    int blockSize = 8;
+                    dim3 dimBlock(blockSize, blockSize, blockSize);
 
-	}
-	else { 
-                // number of threads in each thread block
-//		printf("3D\n");
-                int blockSize = 8;
-                dim3 dimBlock(blockSize, blockSize, blockSize);
+                    // number of thread blocks in grid
+                    int gridSize = (int) ceil((float)n/blockSize);
+                    dim3 dimGrid(gridSize, gridSize, gridSize);
+                    if (functionCode==2)
+                        func_kernel3dF2<<<dimGrid, dimBlock>>>(dy, da, dbase, dparams, n);
+                        int gridSize_temp = (int) ceil(2f*(float)n/blockSize);
+                        dim3 dimGrid(gridSize_temp);
+                        func_kernel3dF2<<<dimGrid, dimBlock>>>(dy_temp, da, dbase_temp, dparams, n_temp);
+                    else if (functionCode==3)
+                        func_kernel3dF3<<<dimGrid, dimBlock>>>(dy, da, dbase, dparams, n);
+                        int gridSize_temp = (int) ceil(2f*(float)n/blockSize);
+                        dim3 dimGrid(gridSize_temp);
+                        func_kernel3dF3<<<dimGrid, dimBlock>>>(dy_temp, da, dbase_temp, dparams, n_temp);
+                    else if (functionCode==4)
+                        func_kernel3dF4<<<dimGrid, dimBlock>>>(dy, da, dbase, dparams, n);
+                        int gridSize_temp = (int) ceil(2f*(float)n/blockSize);
+                        dim3 dimGrid(gridSize_temp);
+                        func_kernel3dF4<<<dimGrid, dimBlock>>>(dy_temp, da, dbase_temp, dparams, n_temp);
+                    else if (functionCode==5)
+                        func_kernel3dF5<<<dimGrid, dimBlock>>>(dy, da, dbase, dparams, n);
+                        int gridSize_temp = (int) ceil(2f*(float)n/blockSize);
+                        dim3 dimGrid(gridSize_temp);
+                        func_kernel3dF5<<<dimGrid, dimBlock>>>(dy_temp, da, dbase_temp, dparams, n_temp);
+                    else if (functionCode==6)
+                        func_kernel3dF6<<<dimGrid, dimBlock>>>(dy, da, dbase, dparams, n); 
+                        int gridSize_temp = (int) ceil(2f*(float)n/blockSize);
+                        dim3 dimGrid(gridSize_temp);
+                        func_kernel3dF6<<<dimGrid, dimBlock>>>(dy_temp, da, dbase_temp, dparams, n_temp); 
+                    else if (functionCode==9)
+                        func_kernel3dF9<<<dimGrid, dimBlock>>>(dy, da, dbase, dparams, n); 
+                        int gridSize_temp = (int) ceil(2f*(float)n/blockSize);
+                        dim3 dimGrid(gridSize_temp);
+                        func_kernel3dF9<<<dimGrid, dimBlock>>>(dy_temp, da, dbase_temp, dparams, n_temp); 
+                    else {
+                        fprintf(stderr, "Invalid function code.");
+    		}
+    	}
 
-                // number of thread blocks in grid
-                int gridSize = (int) ceil((float)n/blockSize);
-                dim3 dimGrid(gridSize, gridSize, gridSize);
-                if (functionCode==2)
-                    func_kernel3dF2<<<dimGrid, dimBlock>>>(dy, da, dbase, dparams, n);
-                else if (functionCode==3)
-                    func_kernel3dF3<<<dimGrid, dimBlock>>>(dy, da, dbase, dparams, n);
-                else if (functionCode==4)
-                    func_kernel3dF4<<<dimGrid, dimBlock>>>(dy, da, dbase, dparams, n);
-                else if (functionCode==5)
-                    func_kernel3dF5<<<dimGrid, dimBlock>>>(dy, da, dbase, dparams, n);
-                else if (functionCode==6)
-                     func_kernel3dF6<<<dimGrid, dimBlock>>>(dy, da, dbase, dparams, n); 
-                else if (functionCode==9)
-                     func_kernel3dF9<<<dimGrid, dimBlock>>>(dy, da, dbase, dparams, n); 
-                else {
-                    fprintf(stderr, "Invalid function code.");
-		}
-	}
+    	
+    	//copy array back
+        cudaMemcpy(y, dy, bytes, cudaMemcpyDeviceToHost);
+        cudaMemcpy(y_temp, dy_temp, bytes_temp, cudaMemcpyDeviceToHost);
+    	
+        double sum = 0;
+    	double sum_temp = 0;
+    	for(uint32_t i=0; i<n0*n1*n2; i++) {
+            sum += y[i];
+    		sum_temp += y_temp[i];
+    	}
+    	for(int j=0; j<k; j++)
+            sum *= base[j];
+    		sum_temp *= base_temp[j];
+    //	printf("final result: %0.10f\n", sum);
 
-	
-	//copy array back
-	cudaMemcpy(y, dy, bytes, cudaMemcpyDeviceToHost);
-	
-	double sum = 0;
-	for(uint32_t i=0; i<n0*n1*n2; i++) {
-		sum += y[i];
-	}
-	for(int j=0; j<k; j++)
-		sum *= base[j];
-//	printf("final result: %0.10f\n", sum);
+        cudaFree(dy);
+    	cudaFree(dy_temp);
+    	cudaFree(da);
+        cudaFree(dbase);
+    	cudaFree(dbase_temp);
+    	cudaFree(dparams);
 
-	cudaFree(dy);
-	cudaFree(da);
-	cudaFree(dbase);
-	cudaFree(dparams);
-//	cudaFree(dn);
+    //	cudaFree(dn);
+        free(y)
+        free(ytemp);
+    	cudaMemset(devicemem, 0, sz); // zeros all the bytes in devicemem
+        *errorEstimate = fabs(sum - sum_temp);
 
-	free(y);
-	cudaMemset(devicemem, 0, sz); // zeros all the bytes in devicemem
+    }
 	return sum;
 }
 
@@ -295,14 +339,16 @@ void test0(void) {
         float a[1]={0};
         float b[1]={1};
         float error;
-        for (int n = 32; n<=1024; n*=2) {
+        // for (int n = 32; n<=1024; n*=2) {
 		double time_spent;
 		clock_t begin, end;
 		begin = clock();
-		Integrate(0, a, b, n, NULL, &error);
+        float eps = 1;
+		Integrate(0, a, b, eps, NULL, &error);
 		end = clock();
 		time_spent = (double)(end - begin) / CLOCKS_PER_SEC;
-		printf("0 %d %0.10f\n", n, time_spent);
+		printf("Error: %0.10f\n", *error);
+        printf("0 %d %0.10f\n", n, time_spent);
 	}
 }
 
