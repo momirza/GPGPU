@@ -134,11 +134,12 @@ double Integrate(
     int functionCode, // Identifies the function (and dimensionality k)
     const float *a, // An array of k lower bounds
     const float *b, // An array of k upper bounds
-    int n, // A target accuracy
+    float eps, // A target accuracy
     const float *params, // Parameters to function
     float *errorEstimate // Estimated error in integral
 ) 
 {
+
 	size_t freeMem = 0;
 	size_t totalMem = 0;
 	cudaMemGetInfo(&freeMem, &totalMem);  
@@ -149,17 +150,18 @@ double Integrate(
 	cudaMalloc((void **)&devicemem, sz);
 
 	cudaMemset(devicemem, 0, sz); // zeros all the bytes in devicemem
+    int n;
 	int n0=n, n1=n, n2=n;	// By default use n points in each dimension
 	int k; int p = 0 ;	
 	switch(functionCode){
-		case 0:	k=1;	p=0;	break;
-		case 1:	k=2;	p=2;	break;
-		case 2:	k=3;	p=0;	break;
-		case 3:	k=3;	p=1;	break;
-		case 4:	k=3;	p=10;	break;
-		case 5:	k=3;	p=0;	break;
-		case 6:	k=3;	p=2;	break;
-		case 9: k=3; 	p=0;	break;
+		case 0:	k=1;	p=0;    n=32;	break;
+		case 1:	k=2;	p=2;	n=32;   break;
+		case 2:	k=3;	p=0;	n=8;   break;
+		case 3:	k=3;	p=1;	n=8;   break;
+		case 4:	k=3;	p=10;	 n=8;   break;
+		case 5:	k=3;	p=0;	n=8;   break;
+		case 6:	k=3;	p=2;    n=8;   break;
+		case 9: k=3; 	p=0;    n=8;   break;
 		default:
 			fprintf(stderr, "Invalid function code.");
 			exit(1);
