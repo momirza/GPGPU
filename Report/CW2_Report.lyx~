@@ -1,0 +1,627 @@
+#LyX 2.0 created this file. For more info see http://www.lyx.org/
+\lyxformat 413
+\begin_document
+\begin_header
+\textclass article
+\use_default_options true
+\maintain_unincluded_children false
+\language english
+\language_package default
+\inputencoding auto
+\fontencoding global
+\font_roman default
+\font_sans default
+\font_typewriter default
+\font_default_family default
+\use_non_tex_fonts false
+\font_sc false
+\font_osf false
+\font_sf_scale 100
+\font_tt_scale 100
+
+\graphics default
+\default_output_format default
+\output_sync 0
+\bibtex_command default
+\index_command default
+\float_placement H
+\paperfontsize default
+\spacing single
+\use_hyperref false
+\papersize default
+\use_geometry true
+\use_amsmath 1
+\use_esint 1
+\use_mhchem 1
+\use_mathdots 1
+\cite_engine basic
+\use_bibtopic false
+\use_indices false
+\paperorientation portrait
+\suppress_date false
+\use_refstyle 1
+\index Index
+\shortcut idx
+\color #008000
+\end_index
+\leftmargin 2cm
+\topmargin 2cm
+\rightmargin 2cm
+\bottommargin 2cm
+\secnumdepth 3
+\tocdepth 3
+\paragraph_separation indent
+\paragraph_indentation default
+\quotes_language english
+\papercolumns 1
+\papersides 1
+\paperpagestyle default
+\tracking_changes false
+\output_changes false
+\html_math_output 0
+\html_css_as_file 0
+\html_be_strict false
+\end_header
+
+\begin_body
+
+\begin_layout Title
+High Performance Computing for Engineers
+\begin_inset Newline newline
+\end_inset
+
+Coursework 2 - Numerical Integration
+\end_layout
+
+\begin_layout Author
+Mohammad Mirza
+\end_layout
+
+\begin_layout Section*
+The Math
+\end_layout
+
+\begin_layout Subsection*
+Integration approach
+\end_layout
+
+\begin_layout Standard
+The numerical integration was done using the rectangule rule described in
+ the coursework specifications.
+\end_layout
+
+\begin_layout Subsection*
+Error estimation approach
+\end_layout
+
+\begin_layout Standard
+The approach implemented was as follows
+\end_layout
+
+\begin_layout Itemize
+Lauch Kernel for integration at sampling rates N and 2N.
+\end_layout
+
+\begin_layout Itemize
+Compare sum from sampling rates N and 2N
+\end_layout
+
+\begin_layout Itemize
+Loop until sum comparison less than error tolerance, eps
+\end_layout
+
+\begin_layout Standard
+Other approaches investigated include Adaptive Quadrature.
+ Where the solution adapts to the shape of the curve by eliminating all
+ regions where the integrand is well behaved( ie, satisfies the error criterion).
+ At the same time, the resolution of the regions that do not conform to
+ the tolerence are eliminated and the sampling resolution is modified by
+ splitting the range and performing the integration again.
+ This divide and conquer approach maximises the GPU's parallelism.
+ This method was not implemented.
+\end_layout
+
+\begin_layout Section*
+Pseudo-code
+\end_layout
+
+\begin_layout Standard
+\begin_inset Float algorithm
+wide false
+sideways false
+status open
+
+\begin_layout Plain Layout
+\begin_inset listings
+inline false
+status open
+
+\begin_layout Plain Layout
+
+__DEVICE_SIDE___
+\end_layout
+
+\begin_layout Plain Layout
+
+KERNEL integrate_FX:
+\end_layout
+
+\begin_layout Plain Layout
+
+	Initialize_Kernel()
+\end_layout
+
+\begin_layout Plain Layout
+
+	determine x array corresponding to this thread
+\end_layout
+
+\begin_layout Plain Layout
+
+	store to y[i] which corresponds to each thread index
+\end_layout
+
+\begin_layout Plain Layout
+
+	Decommission Kernel()
+\end_layout
+
+\begin_layout Plain Layout
+
+\end_layout
+
+\begin_layout Plain Layout
+
+__HOST_SIDE__
+\end_layout
+
+\begin_layout Plain Layout
+
+FUNCTION integrate(grain_size):
+\end_layout
+
+\begin_layout Plain Layout
+
+	Copy from host memery to device memory
+\end_layout
+
+\begin_layout Plain Layout
+
+	while |actual_area - area| > tau:
+\end_layout
+
+\begin_layout Plain Layout
+
+		<<kernel>>y = integrate_FX(grain_size) // FX determined byfunction to
+ be integrated
+\end_layout
+
+\begin_layout Plain Layout
+
+		<<kernel>>actual_y = integrate_FX(grain_size * 2)
+\end_layout
+
+\begin_layout Plain Layout
+
+		// copy array dy from device to y
+\end_layout
+
+\begin_layout Plain Layout
+
+		area = sum(y) // accumulate the threads
+\end_layout
+
+\begin_layout Plain Layout
+
+		actual_area = sum(actual_y)
+\end_layout
+
+\begin_layout Plain Layout
+
+\end_layout
+
+\begin_layout Plain Layout
+
+	
+\end_layout
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Plain Layout
+\begin_inset Caption
+
+\begin_layout Plain Layout
+Kernel Psuedo-code
+\end_layout
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Plain Layout
+
+\end_layout
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Subsection*
+CPU
+\end_layout
+
+\begin_layout Itemize
+2 Intel Xeon X5570, quad-core were used on the CPU side for the tests.
+\end_layout
+
+\begin_layout Subsubsection*
+CPU Optimisations
+\end_layout
+
+\begin_layout Itemize
+Possible optimisations included adding a parallel reduce using kernel dcompostio
+n on the GPU side to reduce the sequential accumulation of sum.
+ This involves recursive kernel invocation and was not attempted due a time
+ contraint.
+\end_layout
+
+\begin_layout Subsection*
+GPU
+\end_layout
+
+\begin_layout Standard
+Development was done on the CUDA platform with a Tesla M2050 (see Appendix
+ for Device Specifications)
+\end_layout
+
+\begin_layout Subsubsection*
+GPU Specifications
+\end_layout
+
+\begin_layout Itemize
+32 thread warp size
+\end_layout
+
+\begin_layout Itemize
+1024 x 1024 x 64 with max number of threads per block of 1024
+\end_layout
+
+\begin_layout Itemize
+Floating point operations were performed within the kernel to allow for
+ a backwards compatibility with older architectures
+\end_layout
+
+\begin_layout Subsubsection*
+GPU Optimisations
+\end_layout
+
+\begin_layout Standard
+\begin_inset Float figure
+wide false
+sideways false
+status open
+
+\begin_layout Plain Layout
+\align center
+\begin_inset Graphics
+	filename Cuda_Fig2.png
+	scale 50
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Plain Layout
+\begin_inset Caption
+
+\begin_layout Plain Layout
+Grid and Block Size Architecture for CUDA Devices
+\end_layout
+
+\end_inset
+
+
+\end_layout
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Standard
+Since the GPU only allows a maximum of 1024 threads per block the following
+ block size configurations were chosen:
+\end_layout
+
+\begin_layout Itemize
+1D: A block size of 32 x 1 x 1 was used
+\end_layout
+
+\begin_layout Itemize
+2D: A block size of 32 x 32 x 1 was used
+\end_layout
+
+\begin_layout Itemize
+3D: A block size of 8 x 8 x 8 was used - Size chosen for symmetry
+\end_layout
+
+\begin_layout Standard
+When the value of n is larger than the block size, additional blocks are
+ launched within the kernal grid.
+ This is referred to as the grid size of the grid.
+ 
+\begin_inset Newline newline
+\end_inset
+
+
+\end_layout
+
+\begin_layout Standard
+
+\series bold
+Possible but not implement enhancements
+\end_layout
+
+\begin_layout Itemize
+Make the variable, 
+\series bold
+base,
+\series default
+ part of shared memory to prevent calling to Global memory every time.
+\begin_inset Newline newline
+\end_inset
+
+Global memory is large but slow, whereas shared memory is small buy fast.
+ A common strategy is to partition the data into subsets and fit these subsets
+ into the shared memory.
+ Compution on these tiles can be performed independent to other kernel invocatio
+ns.
+ This requires a 
+\series bold
+__syncthreads()
+\series default
+ so that all threads within the warp have this available before execution
+ continues.
+\end_layout
+
+\begin_layout Itemize
+Agglomerate the addition of the 32 threads within the kernel.
+ This allows us to reduce the time taken to sum over all threads sequentially
+ on the host side.
+ The sum loop is reduced by a factor of 32.
+\end_layout
+
+\begin_layout Itemize
+Initially, the function pointers were used to call the correct function
+ from within the kernel.
+ This approach was abandoned and a seperate kernel for each function was
+ used instead to allow for backwards compatibility.
+ 
+\begin_inset Newline newline
+\end_inset
+
+
+\emph on
+NB: Function pointers are not supported before CUDA Capability Version 2.0
+\end_layout
+
+\begin_layout Section*
+Analysis
+\end_layout
+
+\begin_layout Subsection*
+Trade-offs between execution time and error
+\end_layout
+
+\begin_layout Standard
+In this implementation, error estimation is done via the parallel execution
+ of multiple kernels.
+ This process repeats until the result converges to the tolerance specified.
+ The overhead of this is repeated kernel invocation and copy new values
+ for the base into the device for each sampling rate.
+ 
+\end_layout
+
+\begin_layout Standard
+Starting at a low sampling rate reduces the chance of passing the tolerance
+ test and therefore requires additional kernel invocations.
+ On the other hand, starting at a high sampling rate might cause overhead
+ in terms of too many threads created on the device.
+ We could agglomerate and create less threads in return for each thread
+ performing a bigger chunk of computing power.
+ This requires performance tuning for specific devices.
+ This agglomeration also reduces the memory overhead on the device as smaller
+ arrays for output need to be allocated.
+\end_layout
+
+\begin_layout Subsection*
+Comparisons with Sequential
+\end_layout
+
+\begin_layout Standard
+The sequential version was generally faster for large n, since the parallism
+ capabilites of the GPU are maximised.
+ For very small n, we are better of using a sequential version.
+ The following table shows a comparison between a slightly modified dumb_impl.c
+ and integ.cu (this file was created for comparison and does not do error
+ estimation, it simply calculates area for the given n).
+\end_layout
+
+\begin_layout Standard
+\begin_inset Float figure
+wide false
+sideways false
+status open
+
+\begin_layout Plain Layout
+\align center
+\begin_inset Graphics
+	filename serial.pdf
+	scale 70
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Plain Layout
+\begin_inset Caption
+
+\begin_layout Plain Layout
+Compariton with serial CPU version - Circles represent CPU and Triangles
+ represent GPU implementation
+\end_layout
+
+\end_inset
+
+
+\end_layout
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Section*
+Appendix
+\end_layout
+
+\begin_layout Standard
+Device 0: "Tesla M2050"
+\end_layout
+
+\begin_layout Standard
+CUDA Driver Version / Runtime Version 5.0 / 5.0
+\end_layout
+
+\begin_layout Standard
+CUDA Capability Major/Minor version number: 2.0
+\end_layout
+
+\begin_layout Standard
+Total amount of global memory: 3072 MBytes (3220897792 bytes)
+\end_layout
+
+\begin_layout Standard
+(14) Multiprocessors x ( 32) CUDA Cores/MP: 448 CUDA Cores
+\end_layout
+
+\begin_layout Standard
+GPU Clock rate: 1147 MHz (1.15 GHz)
+\end_layout
+
+\begin_layout Standard
+Memory Clock rate: 1546 Mhz
+\end_layout
+
+\begin_layout Standard
+Memory Bus Width: 384-bit
+\end_layout
+
+\begin_layout Standard
+L2 Cache Size: 786432 bytes
+\end_layout
+
+\begin_layout Standard
+Max Texture Dimension Size (x,y,z) 1D=(65536), 2D=(65536,65535), 3D=(2048,2048,2
+048)
+\end_layout
+
+\begin_layout Standard
+Max Layered Texture Size (dim) x layers 1D=(16384) x 2048, 2D=(16384,16384)
+ x 2048
+\end_layout
+
+\begin_layout Standard
+Total amount of constant memory: 65536 bytes
+\end_layout
+
+\begin_layout Standard
+Total amount of shared memory per block: 49152 bytes
+\end_layout
+
+\begin_layout Standard
+Total number of registers available per block: 32768
+\end_layout
+
+\begin_layout Standard
+Warp size: 32
+\end_layout
+
+\begin_layout Standard
+Maximum number of threads per multiprocessor: 1536
+\end_layout
+
+\begin_layout Standard
+Maximum number of threads per block: 1024
+\end_layout
+
+\begin_layout Standard
+Maximum sizes of each dimension of a block: 1024 x 1024 x 64
+\end_layout
+
+\begin_layout Standard
+Maximum sizes of each dimension of a grid: 65535 x 65535 x 65535
+\end_layout
+
+\begin_layout Standard
+Maximum memory pitch: 2147483647 bytes
+\end_layout
+
+\begin_layout Standard
+Texture alignment: 512 bytes
+\end_layout
+
+\begin_layout Standard
+Concurrent copy and kernel execution: Yes with 2 copy engine(s)
+\end_layout
+
+\begin_layout Standard
+Run time limit on kernels: No
+\end_layout
+
+\begin_layout Standard
+Integrated GPU sharing Host Memory: No
+\end_layout
+
+\begin_layout Standard
+Support host page-locked memory mapping: Yes
+\end_layout
+
+\begin_layout Standard
+Alignment requirement for Surfaces: Yes
+\end_layout
+
+\begin_layout Standard
+Device has ECC support: Disabled
+\end_layout
+
+\begin_layout Standard
+Device supports Unified Addressing (UVA): Yes
+\end_layout
+
+\begin_layout Standard
+Device PCI Bus ID / PCI location ID: 0 / 3
+\end_layout
+
+\begin_layout Standard
+Compute Mode:
+\end_layout
+
+\begin_layout Standard
+< Default (multiple host threads can use ::cudaSetDevice() with device simultane
+ously) >
+\end_layout
+
+\begin_layout Standard
+
+\end_layout
+
+\end_body
+\end_document
