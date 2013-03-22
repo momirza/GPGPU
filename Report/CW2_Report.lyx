@@ -255,7 +255,7 @@ Kernel Psuedo-code
 CPU
 \end_layout
 
-\begin_layout Standard
+\begin_layout Itemize
 2 Intel Xeon X5570, quad-core were used on the CPU side for the tests.
 \end_layout
 
@@ -305,6 +305,17 @@ GPU Optimisations
 wide false
 sideways false
 status open
+
+\begin_layout Plain Layout
+\align center
+\begin_inset Graphics
+	filename Cuda_Fig2.png
+	scale 50
+
+\end_inset
+
+
+\end_layout
 
 \begin_layout Plain Layout
 \begin_inset Caption
@@ -432,10 +443,19 @@ Comparisons with Sequential
 \end_layout
 
 \begin_layout Standard
+The sequential version was generally faster for large n, since the parallism
+ capabilites of the GPU are maximised.
+ For very small n, we are better of using a sequential version.
+ The following table shows a comparison between a slightly modified dumb_impl.c
+ and integ.cu (this file was created for comparison and does not do error
+ estimation, it simply calculates area for the given n).
+\end_layout
+
+\begin_layout Standard
 \begin_inset Float figure
 wide false
 sideways false
-status collapsed
+status open
 
 \begin_layout Plain Layout
 \align center
@@ -459,22 +479,6 @@ Compariton with serial CPU version - Circles represent CPU and Triangles
 \end_inset
 
 
-\end_layout
-
-\end_inset
-
-
-\end_layout
-
-\begin_layout Standard
-\begin_inset ERT
-status open
-
-\begin_layout Plain Layout
-
-
-\backslash
-newpage
 \end_layout
 
 \end_inset
