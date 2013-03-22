@@ -1,8 +1,8 @@
-#include "functions.h"
+#include "functions_serial.h"
 
 #include <stdio.h>
 #include <stdlib.h>
-
+#include <time.h>
 /*! This is a simple example of multi-dimensional integration
 	using a simple (not necessarily optimal) spacing of points.
 	Note that this doesn't perform any error estimation - it
@@ -93,6 +93,9 @@ void Test0()
 	int n;
 	
 	for(n=2;n<=512;n*=2){		
+		clock_t begin, end;
+		double time_spent;
+		begin = clock();
 		double res=IntegrateExample(
 		  0, // functionCode,
 		  n,	// How many points on each dimension
@@ -100,7 +103,10 @@ void Test0()
 		  b, // An array of k upper bounds
 		  NULL // Parameters to function (no parameters for this function)
 		);
-		fprintf(stderr, "F0, n=%d, value=%lf, error=%lg\n", n, res, res-exact);
+		end = clock();
+		time_spent = (double)(end-begin) / CLOCKS_PER_SEC;
+		printf("0 %d %0.10f\n", n, time_spent);
+//		fprintf(stderr, "F0, n=%d, value=%lf, error=%lg\n", n, res, res-exact);
 	}
 }
 
@@ -113,6 +119,9 @@ void Test1()
 	int n;
 	
 	for(n=2;n<=1024;n*=2){		
+		clock_t begin, end;
+                double time_spent;
+                begin = clock();	
 		double res=IntegrateExample(
 		  1, // functionCode,
 		  n,	// How many points on each dimension
@@ -120,7 +129,10 @@ void Test1()
 		  b, // An array of k upper bounds
 		  params // Parameters to function
 		);
-		fprintf(stderr, "F1, n=%d, value=%lf, error=%lg\n", n, res, res-exact);
+		 end = clock();
+                time_spent = (double)(end-begin) / CLOCKS_PER_SEC;
+                printf("1 %d %0.10f\n", n, time_spent);
+//		fprintf(stderr, "F1, n=%d, value=%lf, error=%lg\n", n, res, res-exact);
 	}
 }
 
@@ -132,6 +144,9 @@ void Test2()
 	int n;
 	
 	for(n=2;n<=256;n*=2){		
+		clock_t begin, end;
+                double time_spent;
+                begin = clock();
 		double res=IntegrateExample(
 		  2, // functionCode,
 		  n,	// How many points on each dimension
@@ -139,7 +154,11 @@ void Test2()
 		  b, // An array of k upper bounds
 		  NULL // Parameters to function (no parameters for this function)
 		);
-		fprintf(stderr, "F2, n=%d, value=%lf, error=%lg\n", n, res, res-exact);
+                end = clock();
+                time_spent = (double)(end-begin) / CLOCKS_PER_SEC;
+                printf("2 %d %0.10f\n", n, time_spent);
+
+//		fprintf(stderr, "F2, n=%d, value=%lf, error=%lg\n", n, res, res-exact);
 	}
 }
 
@@ -152,6 +171,9 @@ void Test3()
 	int n;
 	
 	for(n=2;n<=256;n*=2){		
+                clock_t begin, end;
+                double time_spent;
+                begin = clock();
 		double res=IntegrateExample(
 		  3, // functionCode,
 		  n,	// How many points on each dimension
@@ -159,7 +181,11 @@ void Test3()
 		  b, // An array of k upper bounds
 		  params // Parameters to function (no parameters for this function)
 		);
-		fprintf(stderr, "F3, n=%d, value=%lf, error=%lg\n", n, res, res-exact);
+                end = clock();
+                time_spent = (double)(end-begin) / CLOCKS_PER_SEC;
+                printf("3 %d %0.10f\n", n, time_spent);
+
+//		fprintf(stderr, "F3, n=%d, value=%lf, error=%lg\n", n, res, res-exact);
 	}
 }
 
@@ -180,6 +206,9 @@ void Test4()
 	int n;
 	
 	for(n=2;n<=512;n*=2){		
+		clock_t begin, end;
+                double time_spent;
+                begin = clock();
 		double res=IntegrateExample(
 		  4, // functionCode,
 		  n,	// How many points on each dimension
@@ -187,7 +216,10 @@ void Test4()
 		  b, // An array of k upper bounds
 		  params // Parameters to function (no parameters for this function)
 		);
-		fprintf(stderr, "F4, n=%d, value=%lf, error=%lg	\n", n, res, res-exact);
+                end = clock();
+                time_spent = (double)(end-begin) / CLOCKS_PER_SEC;
+                printf("4 %d %0.10f\n", n, time_spent);
+//		fprintf(stderr, "F4, n=%d, value=%lf, error=%lg	\n", n, res, res-exact);
 	}
 }
 
@@ -199,6 +231,10 @@ void Test5()
 	int n;
 	
 	for(n=2;n<=512;n*=2){		
+                clock_t begin, end;
+                double time_spent;
+                begin = clock();
+
 		double res=IntegrateExample(
 		  5, // functionCode,
 		  n,	// How many points on each dimension
@@ -206,7 +242,11 @@ void Test5()
 		  b, // An array of k upper bounds
 		  NULL
 		);
-		fprintf(stderr, "F5, n=%d, value=%lf, error=%lg	\n", n, res, res-exact);
+                end = clock();
+                time_spent = (double)(end-begin) / CLOCKS_PER_SEC;
+                printf("5 %d %0.10f\n", n, time_spent);
+
+//		fprintf(stderr, "F5, n=%d, value=%lf, error=%lg	\n", n, res, res-exact);
 	}
 }
 
@@ -220,7 +260,11 @@ void Test6()
 	float params[2]={3,0.01};
 	int n;
 	
-	for(n=2;n<=2048;n*=2){		
+	for(n=2;n<=512;n*=2){		
+                clock_t begin, end;
+                double time_spent;
+                begin = clock();
+
 		double res=IntegrateExample(
 		  6, // functionCode,
 		  n,	// How many points on each dimension
@@ -228,7 +272,11 @@ void Test6()
 		  b, // An array of k upper bounds
 		  params
 		);
-		fprintf(stderr, "F6, n=%d, value=%lf, error=%lg	\n", n, res, res-exact);
+                end = clock();
+                time_spent = (double)(end-begin) / CLOCKS_PER_SEC;
+                printf("6 %d %0.10f\n", n, time_spent);
+
+//		fprintf(stderr, "F6, n=%d, value=%lf, error=%lg	\n", n, res, res-exact);
 	}
 }
 

@@ -2,6 +2,7 @@
 #include <stdint.h>
 #include <stdlib.h>
 #include "functions.h"
+#include <time.h>
 
 __global__ void func_kernel1d(float * dy, float* a, float* base, float * params, int n)
 {
@@ -199,7 +200,7 @@ double Integrate(
 	//kernel execute
 	if (k==1) {
 
-		printf("1D\n");
+//		printf("1D\n");
 		// number of threads in each thread block
 		int blockSize = 32;
 		dim3 dimBlock(blockSize);
@@ -212,7 +213,7 @@ double Integrate(
 	}
 	else if (k==2) {
                 // number of threads in each thread block
-		printf("2D\n");
+//		printf("2D\n");
                 int blockSize = 32;
                 dim3 dimBlock(blockSize, blockSize);
 
@@ -225,7 +226,7 @@ double Integrate(
 	}
 	else { 
                 // number of threads in each thread block
-		printf("3D\n");
+//		printf("3D\n");
                 int blockSize = 8;
                 dim3 dimBlock(blockSize, blockSize, blockSize);
 
@@ -259,7 +260,7 @@ double Integrate(
 	}
 	for(int j=0; j<k; j++)
 		sum *= base[j];
-	printf("final result: %0.10f\n", sum);
+//	printf("final result: %0.10f\n", sum);
 
 	cudaFree(dy);
 	cudaFree(da);
@@ -277,16 +278,30 @@ void testmyfunc(void) {
         float a[3]={-1,-1,-1};
         float b[3]={2,2,2};
         float error;
-        int n = 32;
-        Integrate(9, a, b, n, NULL, &error);
+        for (int n = 32; n<=1024; n*=2) {
+		double time_spent;
+		clock_t begin, end;
+		begin = clock();
+		Integrate(9, a, b, n, NULL, &error);
+		end = clock();
+		time_spent = (double)(end - begin) / CLOCKS_PER_SEC;
+//	printf("0 %d %0.10f", n, time_spent);	
+	}
 }
 
 void test0(void) {
         float a[1]={0};
         float b[1]={1};
         float error;
-        int n = 256;
-        Integrate(0, a, b, n, NULL, &error);
+        for (int n = 32; n<=1024; n*=2) {
+		double time_spent;
+		clock_t begin, end;
+		begin = clock();
+		Integrate(0, a, b, n, NULL, &error);
+		end = clock();
+		time_spent = (double)(end - begin) / CLOCKS_PER_SEC;
+		printf("0 %d %0.10f\n", n, time_spent);
+	}
 }
 
 void test1(void) {
@@ -294,8 +309,18 @@ void test1(void) {
 	float b[2]={1,1};
 	float params[2]={0.5,0.5};
 	float error;
-	int n = 128; 
-	Integrate(1, a, b, n, params, &error); 	
+//	int n = 128; 
+
+        for (int n = 32; n<=1024; n*=2) {
+                double time_spent;
+                clock_t begin, end;
+                begin = clock();
+		Integrate(1, a, b, n, params, &error); 	
+                end = clock();
+                time_spent = (double)(end - begin) / CLOCKS_PER_SEC;
+                printf("1 %d %0.10f\n", n, time_spent);
+        }
+
 }
 
 void test2(void) {
@@ -304,7 +329,15 @@ void test2(void) {
 	float b[3]={1,1,1};
 	int n = 512;	
 	float error;
-	Integrate(2, a, b, n, NULL, &error); 	
+        for (int n = 8; n<=512; n*=2) {
+                double time_spent;
+                clock_t begin, end;
+                begin = clock();
+		Integrate(2, a, b, n, NULL, &error); 	
+                end = clock();
+                time_spent = (double)(end - begin) / CLOCKS_PER_SEC;
+                printf("2 %d %0.10f\n", n, time_spent);
+        }
 }
 
 void test3(void) {
@@ -314,7 +347,16 @@ void test3(void) {
 	float params[1]={2};
 	int n = 512;	
 	float error;
-	Integrate(3, a, b, n, params, &error); 	
+        for (int n = 8; n<=512; n*=2) {
+                double time_spent;
+                clock_t begin, end;
+                begin = clock();
+		Integrate(3, a, b, n, params, &error); 	
+                end = clock();
+                time_spent = (double)(end - begin) / CLOCKS_PER_SEC;
+                printf("3 %d %0.10f\n", n, time_spent);
+        }
+
 }
 
 void test4(void) {
@@ -330,18 +372,36 @@ void test4(void) {
 		-0.5, -0.5, 1.5,
 		pow(2*PI,-3.0/2.0)*pow(0.5,-0.5) // This is the scale factor
 	};
-	int n = 512;
+//	int n = 512;
 	float error;
-        Integrate(4, a, b, n, params, &error);
+        for (int n = 8; n<=512; n*=2) {
+                double time_spent;
+                clock_t begin, end;
+                begin = clock();
+		Integrate(4, a, b, n, params, &error);
+                end = clock();
+                time_spent = (double)(end - begin) / CLOCKS_PER_SEC;
+                printf("4 %d %0.10f\n", n, time_spent);
+        }
+
 }
 void test5(void) {
 	float exact=13.4249394627056;	// Correct to about 6 digits
 	float a[3]={0,0,0};
 	float b[3]={3,3,3};
-        int n = 512;
+//        int n = 512;
         float error;
-        Integrate(5, a, b, n, NULL, &error);
+        for (int n = 8; n<=512; n*=2) {
+                double time_spent;
+                clock_t begin, end;
+                begin = clock();
+		Integrate(5, a, b, n, NULL, &error);
+                end = clock();
+                time_spent = (double)(end - begin) / CLOCKS_PER_SEC;
+                printf("5 %d %0.10f\n", n, time_spent);
+	}
 }
+
 void test6(void) {
 
 	float exact=   2.261955088165;
@@ -350,7 +410,15 @@ void test6(void) {
 	float params[2]={3,0.01};
         int n = 512;
         float error;
-        Integrate(6, a, b, n, params, &error);
+        for (int n = 8; n<=512; n*=2) {
+                double time_spent;
+                clock_t begin, end;
+                begin = clock();
+		Integrate(6, a, b, n, params, &error);
+                end = clock();
+                time_spent = (double)(end - begin) / CLOCKS_PER_SEC;
+                printf("6 %d %0.10f\n", n, time_spent);
+        }
 }
 
 int main( int argc, char* argv[]) {
@@ -361,7 +429,7 @@ int main( int argc, char* argv[]) {
 	test4(); // works
 	test5(); // works
 	test6(); // works
-	testmyfunc();
+//	testmyfunc();
 }
 
 
