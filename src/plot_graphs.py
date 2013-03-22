@@ -78,7 +78,7 @@ if __name__ == "__main__":
 
 
     pyplot.plot(nF0new, F0_i, nF1new, F1_i, nF2new, F2_i, nF3new, F3_i, nF4new, F4_i, nF5new, F5_i, nF6new, F6_i, linestyle='--', lw= 1.5)
-    pyplot.plot(nF0, F0, nF1, F1, nF2, F2, nF3, F3, nF4, F4, nF5, F5, nF6, F6, marker='o')
+    pyplot.plot(nF0, F0, nF1, F1, nF2, F2, nF3, F3, nF4, F4, nF5, F5, nF6, F6, marker='o',ls='None')
     pyplot.grid(which='major', axis='both', linestyle='-',color='#C0C0C0', alpha=0.5)
     pyplot.grid(which='minor', axis='y', linestyle='--',color='#C0C0C0', alpha=0.5)
     pyplot.xlabel("n")
