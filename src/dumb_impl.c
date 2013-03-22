@@ -92,7 +92,7 @@ void Test0()
 	float b[1]={1};
 	int n;
 	
-	for(n=2;n<=512;n*=2){		
+	for(n=2;n<=1024;n*=2){		
 		clock_t begin, end;
 		double time_spent;
 		begin = clock();
@@ -143,7 +143,7 @@ void Test2()
 	float b[3]={1,1,1};
 	int n;
 	
-	for(n=2;n<=256;n*=2){		
+	for(n=2;n<=512;n*=2){		
 		clock_t begin, end;
                 double time_spent;
                 begin = clock();
@@ -170,7 +170,7 @@ void Test3()
 	float params[1]={2};
 	int n;
 	
-	for(n=2;n<=256;n*=2){		
+	for(n=2;n<=512;n*=2){		
                 clock_t begin, end;
                 double time_spent;
                 begin = clock();
