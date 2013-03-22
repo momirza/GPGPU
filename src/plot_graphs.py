@@ -114,7 +114,6 @@ if __name__ == "__main__":
     pyplot.grid(which='major', axis='both', linestyle='-',color='#C0C0C0', alpha=0.5)
     pyplot.grid(which='minor', axis='y', linestyle='--',color='#C0C0C0', alpha=0.5)
     pyplot.xlabel("n")
-    pyplot.ylim(ymin=0)
     pyplot.legend(('F0','F1', 'F2', 'F3', 'F4', 'F5', 'F6'), loc=2)
     pyplot.ylabel("Time log10(s)")
     pyplot.title("Execution Times - Serial and parallel (%d simulation runs) " % RUNS)
