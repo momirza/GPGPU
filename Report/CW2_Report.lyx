@@ -24,6 +24,7 @@
 \output_sync 0
 \bibtex_command default
 \index_command default
+\float_placement H
 \paperfontsize default
 \spacing single
 \use_hyperref false
@@ -84,8 +85,9 @@ The Math
 Integration approach
 \end_layout
 
-\begin_layout Itemize
-Rectangles
+\begin_layout Standard
+The numerical integration was done using the rectangule rule described in
+ the coursework specifications.
 \end_layout
 
 \begin_layout Subsection*
@@ -93,84 +95,34 @@ Error estimation approach
 \end_layout
 
 \begin_layout Standard
-PHASE1 of the algorithm has the adaptive nature of eliminating all the regions
- where the integrand is well-behaved(satisfies the error criterion) and
- at the same time refining the resolution in the regions which require further
- application of integration rules due to complicated and sometimes very
- poorly behaved integrand.
- Using such hierarchical subdivision guarantees the maximum utilization
- of GPU and subsequently improves the performance of the integral computation.
- Number of iterations of PHASE1 is decided based on the fraction of input
- intervals that remain active after an iteration of PHASE1.
+The approach implemented was as follows
 \end_layout
 
 \begin_layout Itemize
-Adaptive Quadrature.
+Lauch Kernel for integration at sampling rates N and 2N.
+\end_layout
+
+\begin_layout Itemize
+Compare sum from sampling rates N and 2N
+\end_layout
+
+\begin_layout Itemize
+Loop until sum comparison less than error tolerance, eps
+\end_layout
+
+\begin_layout Standard
+Other approaches investigated include Adaptive Quadrature.
+ Where the solution adapts to the shape of the curve by eliminating all
+ regions where the integrand is well behaved( ie, satisfies the error criterion).
+ At the same time, the resolution of the regions that do not conform to
+ the tolerence are and the sampling resolution is modified by splitting
+ the range and performing the integration again.
+ This divide and conquer approach maximises the GPU's parallelism.
+ This method was not implemented
 \end_layout
 
 \begin_layout Section*
 Pseudo-code
-\end_layout
-
-\begin_layout Standard
-
-\emph on
-Discuss block size and grid size
-\end_layout
-
-\begin_layout Standard
-\begin_inset Float figure
-wide false
-sideways false
-status open
-
-\begin_layout Plain Layout
-
-\end_layout
-
-\begin_layout Plain Layout
-\begin_inset Caption
-
-\begin_layout Plain Layout
-Grid and Block Size Architecture for CUDA Devices
-\end_layout
-
-\end_inset
-
-
-\end_layout
-
-\begin_layout Plain Layout
-
-\end_layout
-
-\end_inset
-
-
-\end_layout
-
-\begin_layout Standard
-Since the GPU only allows a maximum of 1024 threads per block the following
- block size configurations were chosen:
-\end_layout
-
-\begin_layout Itemize
-1D: A block size of 32 x 1 x 1 was used
-\end_layout
-
-\begin_layout Itemize
-2D: A block size of 32 x 32 x 1 was used
-\end_layout
-
-\begin_layout Itemize
-3D: A block size of 8 x 8 x was used
-\end_layout
-
-\begin_layout Standard
-When the value of n is larger than the block size, additional blocks are
- launched within the kernal grid.
- This is reffered to as the grid size of the grid.
- 
 \end_layout
 
 \begin_layout Standard
@@ -230,27 +182,47 @@ FUNCTION integrate(grain_size):
 
 \begin_layout Plain Layout
 
-	MEMCPYFROMDEVICE(host_y, y)
-\end_layout
-
-\begin_layout Plain Layout
-
-	area= sum_of_all_elements(y)
-\end_layout
-
-\begin_layout Plain Layout
-
 	Copy from host memery to device memory
 \end_layout
 
 \begin_layout Plain Layout
 
-	if not |actual_area - area| < tau:
+	while |actual_area - area| > tau:
 \end_layout
 
 \begin_layout Plain Layout
 
-		integrate_FX(grain_size/2) // FX determined by function to be integrated
+		<<kernel>>y = integrate_FX(grain_size) // FX determined byfunction to
+ be integrated
+\end_layout
+
+\begin_layout Plain Layout
+
+		<<kernel>>actual_y = integrate_FX(grain_size * 2)
+\end_layout
+
+\begin_layout Plain Layout
+
+		// copy array dy from device to y
+\end_layout
+
+\begin_layout Plain Layout
+
+		area = sum(y) // accumulate the threads
+\end_layout
+
+\begin_layout Plain Layout
+
+		actual_area = sum(actual_y)
+\end_layout
+
+\begin_layout Plain Layout
+
+\end_layout
+
+\begin_layout Plain Layout
+
+	
 \end_layout
 
 \end_inset
@@ -283,7 +255,7 @@ Kernel Psuedo-code
 CPU
 \end_layout
 
-\begin_layout Standard
+\begin_layout Itemize
 2 Intel Xeon X5570, quad-core were used on the CPU side for the tests.
 \end_layout
 
@@ -292,7 +264,10 @@ CPU Optimisations
 \end_layout
 
 \begin_layout Itemize
-???
+Possible optimisations included adding a parallel reduce using kernel dcompostio
+n on the GPU side to reduce the sequential accumulation of sum.
+ This involves recursive kernel invocation and was not attempted due a time
+ contraint.
 \end_layout
 
 \begin_layout Subsection*
@@ -325,22 +300,94 @@ Floating point operations were performed within the kernel to allow for
 GPU Optimisations
 \end_layout
 
-\begin_layout Itemize
-Use shared memory instead of global memory when iterating over parameters.
+\begin_layout Standard
+\begin_inset Float figure
+wide false
+sideways false
+status open
+
+\begin_layout Plain Layout
+\align center
+\begin_inset Graphics
+	filename Cuda_Fig2.png
+	scale 50
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Plain Layout
+\begin_inset Caption
+
+\begin_layout Plain Layout
+Grid and Block Size Architecture for CUDA Devices
+\end_layout
+
+\end_inset
+
+
+\end_layout
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Standard
+Since the GPU only allows a maximum of 1024 threads per block the following
+ block size configurations were chosen:
 \end_layout
 
 \begin_layout Itemize
-maximise to maximum warp size
+1D: A block size of 32 x 1 x 1 was used
 \end_layout
 
 \begin_layout Itemize
-Make base variable part of shared memory to prevent calling to Global memory
- every time.
+2D: A block size of 32 x 32 x 1 was used
+\end_layout
+
+\begin_layout Itemize
+3D: A block size of 8 x 8 x 8 was used - Size chosen for symmetry
+\end_layout
+
+\begin_layout Standard
+When the value of n is larger than the block size, additional blocks are
+ launched within the kernal grid.
+ This is referred to as the grid size of the grid.
+ 
+\begin_inset Newline newline
+\end_inset
+
+
+\end_layout
+
+\begin_layout Standard
+
+\series bold
+Possible but not implement enhancements
+\end_layout
+
+\begin_layout Itemize
+Make the variable, 
+\series bold
+base,
+\series default
+ part of shared memory to prevent calling to Global memory every time.
+\begin_inset Newline newline
+\end_inset
+
+Global memory is large but slow, whereas shared memory is small buy fast.
+ A common strategy is to partition the data into subsets and fit these subsets
+ into the shared memory.
+ Compution on these tiles can be performed independent to other kernel invocatio
+ns.
  This requires a 
 \series bold
 __syncthreads()
 \series default
- so that all threads within the warp have this available??
+ so that all threads within the warp have this available before execution
+ continues.
 \end_layout
 
 \begin_layout Itemize
@@ -372,19 +419,66 @@ Analysis
 Trade-offs between execution time and error
 \end_layout
 
+\begin_layout Standard
+In this implementation, error estimation is done via the parallel execution
+ of multiple kernels.
+ This process repeats until the result converges to the tolerance specified.
+ The overhead of this is repeated kernel invocation and copy new values
+ for the base into the device for each sampling rate.
+ 
+\end_layout
+
+\begin_layout Standard
+Starting at a low sampling rate reduces the chance of passing the tolerance
+ test and therefore requires additional kernel invocations.
+ On the other hand, starting at a high sampling rate might cause overhead
+ in terms of too many threads created on the device.
+ We could agglomerate and create less threads in return for each thread
+ performing a bigger chunk of computing power.
+ This requires performance tuning for specific devices.
+\end_layout
+
 \begin_layout Subsection*
 Comparisons with Sequential
 \end_layout
 
 \begin_layout Standard
-\begin_inset ERT
+The sequential version was generally faster for large n, since the parallism
+ capabilites of the GPU are maximised.
+ For very small n, we are better of using a sequential version.
+ The following table shows a comparison between a slightly modified dumb_impl.c
+ and integ.cu (this file was created for comparison and does not do error
+ estimation, it simply calculates area for the given n).
+\end_layout
+
+\begin_layout Standard
+\begin_inset Float figure
+wide false
+sideways false
 status open
 
 \begin_layout Plain Layout
+\align center
+\begin_inset Graphics
+	filename serial.pdf
+	scale 70
+
+\end_inset
 
 
-\backslash
-newpage
+\end_layout
+
+\begin_layout Plain Layout
+\begin_inset Caption
+
+\begin_layout Plain Layout
+Compariton with serial CPU version - Circles represent CPU and Triangles
+ represent GPU implementation
+\end_layout
+
+\end_inset
+
+
 \end_layout
 
 \end_inset
