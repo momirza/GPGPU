@@ -1,5 +1,8 @@
 from subprocess import Popen, PIPE
+import matplotlib
+matplotlib.use('Agg')
 from matplotlib import pyplot
+
 import csv
 import numpy as np
 from scipy import interpolate
