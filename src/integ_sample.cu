@@ -131,7 +131,7 @@ void cudasafe( cudaError_t error, char* message)
    if(error!=cudaSuccess) { fprintf(stderr,"ERROR: %s : %i\n",message,error); exit(-1); }
 }
 
-extern double integrate_cu(
+extern "C" double integrate_cu(
     int functionCode, // Identifies the function (and dimensionality k)
     const float *a, // An array of k lower bounds
     const float *b, // An array of k upper bounds
