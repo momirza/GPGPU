@@ -26,8 +26,8 @@ def call_exec(file):
         proc_list.append(map(get_times, (Popen([('./%s' %file)] , stdout=PIPE).stdout.readlines())))
     averaged = [[map(np.mean, zip(*[x[y] for x in proc_list]))] for y in range(len(proc_list[0]))]
     averaged = [x[0] for x in averaged]
-    return [[[int(x[1]), x[2]] for x in averaged if int(x[0])==y] for y in range(7)]
-    # return [[[int(x[1]), np.log10(0.000001) if not x[2] else np.log10(x[2])] for x in averaged if int(x[0])==y] for y in range(3)]
+    # return [[[int(x[1]), x[2]] for x in averaged if int(x[0])==y] for y in range(7)]
+    return [[[int(x[1]), np.log10(0.000001) if not x[2] else np.log10(x[2])] for x in averaged if int(x[0])==y] for y in range(3)]
 
 if __name__ == "__main__":
     DATA_EXISTS = False if sys.argv[-1] == 'rerun' else True
@@ -107,15 +107,15 @@ if __name__ == "__main__":
     GF6_i = interpolate.splev(nGF6new,tck_GF6,der=0)
 
 
-    pyplot.plot(nF0new, F0_i, nF1new, F1_i, nF2new, F2_i, nF3new, F3_i, nF4new, F4_i, nF5new, F5_i, nF6new, F6_i, linestyle='--', lw= 1.5)
-    pyplot.plot(nF0, F0, nF1, F1, nF2, F2, nF3, F3, nF4, F4, nF5, F5, nF6, F6, marker='o',ls='None')
-    pyplot.plot(nGF0new, GF0_i, nGF1new, GF1_i, nGF2new, GF2_i, nGF3new, GF3_i, nGF4new, GF4_i, nGF5new, GF5_i, nGF6new, GF6_i, linestyle='-', lw= 1.5)
-    pyplot.plot(nGF0, GF0, nGF1, GF1, nGF2, GF2, nGF3, GF3, nGF4, GF4, nGF5, GF5, nGF6, GF6, marker='^',ls='None')
+    # pyplot.plot(nF0new, F0_i, nF1new, F1_i, nF2new, F2_i, nF3new, F3_i, nF4new, F4_i, nF5new, F5_i, nF6new, F6_i, linestyle='--', lw= 1.5)
+    pyplot.plot(nF0, F0, nF1, F1, nF2, F2, nF3, F3, nF4, F4, nF5, F5, nF6, F6, marker='o',ls='--')
+    # pyplot.plot(nGF0new, GF0_i, nGF1new, GF1_i, nGF2new, GF2_i, nGF3new, GF3_i, nGF4new, GF4_i, nGF5new, GF5_i, nGF6new, GF6_i, linestyle='-', lw= 1.5)
+    pyplot.plot(nGF0, GF0, nGF1, GF1, nGF2, GF2, nGF3, GF3, nGF4, GF4, nGF5, GF5, nGF6, GF6, marker='^',ls='--')
     pyplot.grid(which='major', axis='both', linestyle='-',color='#C0C0C0', alpha=0.5)
     pyplot.grid(which='minor', axis='y', linestyle='--',color='#C0C0C0', alpha=0.5)
     pyplot.xlabel("n")
     pyplot.ylim(ymin=0)
     pyplot.legend(('F0','F1', 'F2', 'F3', 'F4', 'F5', 'F6'), loc=2)
-    pyplot.ylabel("Time (s)")
+    pyplot.ylabel("Time log10(s)")
     pyplot.title("Execution Times - Serial and parallel (%d simulation runs) " % RUNS)
     pyplot.savefig('serial.pdf')

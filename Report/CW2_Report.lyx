@@ -283,6 +283,10 @@ Kernel Psuedo-code
 CPU
 \end_layout
 
+\begin_layout Standard
+2 Intel Xeon X5570, quad-core were used on the CPU side for the tests.
+\end_layout
+
 \begin_layout Subsubsection*
 CPU Optimisations
 \end_layout
@@ -293,6 +297,11 @@ CPU Optimisations
 
 \begin_layout Subsection*
 GPU
+\end_layout
+
+\begin_layout Standard
+Development was done on the CUDA platform with a Tesla M2050 (see Appendix
+ for Device Specifications)
 \end_layout
 
 \begin_layout Subsubsection*
